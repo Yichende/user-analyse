@@ -1,11 +1,10 @@
-import { userRegister, getCurrentUser } from '@/services/UserService';
-import { history, Link, useModel } from '@umijs/max';
-import { Button, Form, Input, message, Popover, Progress, Select } from 'antd';
+import { userRegister } from '@/services/UserService';
+import { history, useModel } from '@umijs/max';
+import { Form, Input, message, Popover, Progress, Select } from 'antd';
 import type { FC } from 'react';
-import { useEffect, useState } from 'react';
+import React,  { useImperativeHandle, useEffect, useState } from 'react';
 import useStyles from './style.style';
-import { flushSync } from 'react-dom';
-
+// import { flushSync } from 'react-dom';
 
 const FormItem = Form.Item;
 
@@ -18,13 +17,28 @@ const passwordProgressMap: {
   pass: 'normal',
   poor: 'exception',
 };
-const Register: FC = () => {
+const CreateUser: FC = React.forwardRef((props, ref) => {
   const { styles } = useStyles();
   const [open, setVisible]: [boolean, any] = useState(false);
   const [popover, setPopover]: [boolean, any] = useState(false);
   const { initialState, setInitialState } = useModel('@@initialState');
   const confirmDirty = false;
+
+  const formRef = React.useRef<Form>(null);
+
   let interval: number | undefined;
+
+  // 子组件中的提交表单方法
+  const handleSubmit = () => {
+    if (formRef.current) {
+      formRef.current.submit();
+    }
+  };
+
+  useImperativeHandle(
+    ref,
+    () => ({ handleSubmit })
+  );
 
   const passwordStatusMap = {
     ok: (
@@ -63,32 +77,26 @@ const Register: FC = () => {
     return 'poor';
   };
   // 登录成功后，获取用户登录信息
-  const fetchUserInfo = async () => {
-    const userInfo = await getCurrentUser();
-    if (userInfo) {
-      flushSync(() => {
-        setInitialState((s) => ({
-          ...s,
-          currentUser: userInfo,
-        }));
-      });
-    }
-  };
+  // const fetchUserInfo = async () => {
+  //   const userInfo = await getCurrentUser();
+  //   if (userInfo) {
+  //     flushSync(() => {
+  //       setInitialState((s) => ({
+  //         ...s,
+  //         currentUser: userInfo,
+  //       }));
+  //     });
+  //   }
+  // };
 
   const onFinish = async (values: API.UserRegisterParams) => {
     // 向后端发送注册请求
     try {
       const response = await userRegister(values);
-      console.log(response);
+      // console.log(response);
       if (response && response.message === 'ok') {
         message.success('注册成功');
         form.resetFields();
-        localStorage.clear()
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('account', response.account);
-        history.push({
-          pathname: `/user/register-result?account=${response.newUser.account}`,
-        });
       }
     } catch (error: any) {
       if (error.response.data.message === 'User already exists') {
@@ -139,9 +147,8 @@ const Register: FC = () => {
     ) : null;
   };
   return (
-    <div className={styles.main} style={{ marginTop: 50 }}>
-      <h3>注册</h3>
-      <Form form={form} name="UserRegister" onFinish={onFinish}>
+    <div className={styles.main} style={{ marginTop: 20 }}>
+      <Form ref={formRef} form={form} name="UserRegister" onFinish={onFinish}>
         <FormItem
           name="account"
           rules={[
@@ -237,18 +244,18 @@ const Register: FC = () => {
           </Select>
         </Form.Item>
 
-        <FormItem>
+        {/* <FormItem>
           <div className={styles.footer}>
-            <Button size="large" className={styles.submit} type="primary" htmlType="submit">
+            <Button size="large" type="primary" htmlType="submit">
               <span>注册</span>
             </Button>
-            <Link to="/user/login">
-              <span>使用已有账户登录</span>
-            </Link>
+            <Button size="large">
+              <span>取消</span>
+            </Button>
           </div>
-        </FormItem>
+        </FormItem> */}
       </Form>
     </div>
   );
-};
-export default Register;
+});
+export default CreateUser;

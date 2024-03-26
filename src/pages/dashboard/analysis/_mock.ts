@@ -186,25 +186,25 @@ radarOriginData.forEach((item) => {
   });
 });
 
-const getFakeChartData: AnalysisData = {
-  visitData,
-  visitData2,
-  salesData,
-  searchData,
-  offlineData,
-  offlineChartData,
-  salesTypeData,
-  salesTypeDataOnline,
-  salesTypeDataOffline,
-  radarData,
-};
+// const getFakeChartData: AnalysisData = {
+//   visitData,
+//   visitData2,
+//   salesData,
+//   searchData,
+//   offlineData,
+//   offlineChartData,
+//   salesTypeData,
+//   salesTypeDataOnline,
+//   salesTypeDataOffline,
+//   radarData,
+// };
 
-const fakeChartData = (_: Request, res: Response) => {
-  return res.json({
-    data: getFakeChartData,
-  });
-};
+// const fakeChartData = (_: Request, res: Response) => {
+//   return res.json({
+//     data: getFakeChartData,
+//   });
+// };
 
-export default {
-  'GET  /api/fake_analysis_chart_data': fakeChartData,
-};
+// export default {
+//   'GET  /api/fake_analysis_chart_data': fakeChartData,
+// };

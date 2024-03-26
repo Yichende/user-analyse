@@ -1,27 +1,10 @@
+import { getCurrentUser } from '@/services/UserService';
 import { UploadOutlined } from '@ant-design/icons';
-import {
-  ProForm,
-  ProFormDependency,
-  ProFormFieldSet,
-  ProFormSelect,
-  ProFormText,
-  ProFormTextArea,
-} from '@ant-design/pro-components';
-import { useRequest } from '@umijs/max';
-import { Button, Input, message, Upload } from 'antd';
-import React from 'react';
-import { queryCity, queryCurrent, queryProvince } from '../service';
+import { ProForm, ProFormText } from '@ant-design/pro-components';
+import { Button, Divider, Flex, Form, message, Upload } from 'antd';
+import React, { useEffect, useState } from 'react';
 import useStyles from './index.style';
-
-const validatorPhone = (rule: any, value: string[], callback: (message?: string) => void) => {
-  if (!value[0]) {
-    callback('Please input your area code!');
-  }
-  if (!value[1]) {
-    callback('Please input your phone number!');
-  }
-  callback();
-};
+import { comparePassword, changePassword } from '@/services/UserService';
 
 const BaseView: React.FC = () => {
   const { styles } = useStyles();
@@ -39,30 +22,63 @@ const BaseView: React.FC = () => {
             更换头像
           </Button>
         </div>
-      </Upload>
+      </Upload> 
     </>
   );
-  const { data: currentUser, loading } = useRequest(() => {
-    return queryCurrent();
-  });
+
+
+  const [initialUserInfo, setInitialUserInfo] = useState({avatar: ''});
+
+  const [form] = Form.useForm();
+  const initUserFormInfo = (data: API.CurrentUser) => {
+    const user = data;
+    form.setFieldsValue({
+      account: user.account,
+      username: user.username,
+    });
+  };
+
+  useEffect(() => {
+    getCurrentUser()
+      .then((data) => {
+        // 初始化表单
+        initUserFormInfo(data);
+        // setState
+        setInitialUserInfo(data);
+      })
+      .catch((error) => {
+        console.log('error update user data: ', error);
+      });
+  }, []);
+
+  const testClick = async() => {
+    const res = await changePassword('123456', '123456')
+    console.log('resultTest: ', res);
+  };
+
   const getAvatarURL = () => {
-    if (currentUser) {
-      if (currentUser.avatar) {
-        return currentUser.avatar;
-      }
-      const url = 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png';
-      return url;
-    }
-    return '';
+    const url = 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png';
+    return initialUserInfo.avatar ? initialUserInfo.avatar : url;
   };
   const handleFinish = async () => {
     message.success('更新基本信息成功');
   };
   return (
     <div className={styles.baseView}>
-      {loading ? null : (
+      {
         <>
           <div className={styles.left}>
+            <>
+              <Divider orientation="left" plain>
+                Preview
+              </Divider>
+
+              <Flex gap="small" align="flex-start" vertical>
+                <Button type="primary" onClick={testClick}>
+                  Primary
+                </Button>
+              </Flex>
+            </>
             <ProForm
               layout="vertical"
               onFinish={handleFinish}
@@ -72,26 +88,19 @@ const BaseView: React.FC = () => {
                 },
                 render: (_, dom) => dom[1],
               }}
-              initialValues={{
-                ...currentUser,
-                phone: currentUser?.phone.split('-'),
-              }}
-              hideRequiredMark
+              form={form}
+              // initialValues={initialValues}
             >
               <ProFormText
                 width="md"
-                name="email"
-                label="邮箱"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入您的邮箱!',
-                  },
-                ]}
+                name="account"
+                label="账号"
+                disabled
               />
               <ProFormText
+                // initialValue = {initialValues.username}
                 width="md"
-                name="name"
+                name="username"
                 label="昵称"
                 rules={[
                   {
@@ -100,129 +109,13 @@ const BaseView: React.FC = () => {
                   },
                 ]}
               />
-              <ProFormTextArea
-                name="profile"
-                label="个人简介"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入个人简介!',
-                  },
-                ]}
-                placeholder="个人简介"
-              />
-              <ProFormSelect
-                width="sm"
-                name="country"
-                label="国家/地区"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入您的国家或地区!',
-                  },
-                ]}
-                options={[
-                  {
-                    label: '中国',
-                    value: 'China',
-                  },
-                ]}
-              />
-
-              <ProForm.Group title="所在省市" size={8}>
-                <ProFormSelect
-                  rules={[
-                    {
-                      required: true,
-                      message: '请输入您的所在省!',
-                    },
-                  ]}
-                  width="sm"
-                  fieldProps={{
-                    labelInValue: true,
-                  }}
-                  name="province"
-                  className={styles.item}
-                  request={async () => {
-                    return queryProvince().then(({ data }) => {
-                      return data.map((item) => {
-                        return {
-                          label: item.name,
-                          value: item.id,
-                        };
-                      });
-                    });
-                  }}
-                />
-                <ProFormDependency name={['province']}>
-                  {({ province }) => {
-                    return (
-                      <ProFormSelect
-                        params={{
-                          key: province?.value,
-                        }}
-                        name="city"
-                        width="sm"
-                        rules={[
-                          {
-                            required: true,
-                            message: '请输入您的所在城市!',
-                          },
-                        ]}
-                        disabled={!province}
-                        className={styles.item}
-                        request={async () => {
-                          if (!province?.key) {
-                            return [];
-                          }
-                          return queryCity(province.key || '').then(({ data }) => {
-                            return data.map((item) => {
-                              return {
-                                label: item.name,
-                                value: item.id,
-                              };
-                            });
-                          });
-                        }}
-                      />
-                    );
-                  }}
-                </ProFormDependency>
-              </ProForm.Group>
-              <ProFormText
-                width="md"
-                name="address"
-                label="街道地址"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入您的街道地址!',
-                  },
-                ]}
-              />
-              <ProFormFieldSet
-                name="phone"
-                label="联系电话"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入您的联系电话!',
-                  },
-                  {
-                    validator: validatorPhone,
-                  },
-                ]}
-              >
-                <Input className={styles.area_code} />
-                <Input className={styles.phone_number} />
-              </ProFormFieldSet>
             </ProForm>
           </div>
           <div className={styles.right}>
             <AvatarView avatar={getAvatarURL()} />
           </div>
         </>
-      )}
+      }
     </div>
   );
 };

@@ -3,14 +3,18 @@
 import { request } from '@umijs/max';
 
 /** 获取当前的用户 GET /api/currentUser */
-export async function currentUser(options?: { [key: string]: any }) {
-  return request<{
-    data: API.CurrentUser;
-  }>('/api/currentUser', {
-    method: 'GET',
-    ...(options || {}),
-  });
-}
+// export async function currentUser(options?: { [key: string]: any }) {
+//   const account = localStorage.getItem('account');
+//   const jsonAccount = JSON.parse(account as string)
+
+//   return request('/api/currentUser', {
+//     method: 'GET',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     params: JSON.stringify(jsonAccount),
+//   });
+// }
 
 /** 退出登录接口 POST /api/login/outLogin */
 export async function outLogin(options?: { [key: string]: any }) {

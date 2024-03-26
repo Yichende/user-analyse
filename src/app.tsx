@@ -1,12 +1,11 @@
-import { AvatarDropdown, AvatarName, Footer, Question, SelectLang } from '@/components';
+import { AvatarDropdown, AvatarName, Footer, Question } from '@/components';
 import { LinkOutlined } from '@ant-design/icons';
-import type { Settings as LayoutSettings } from '@ant-design/pro-components';
 import { SettingDrawer } from '@ant-design/pro-components';
 import type { RequestConfig, RunTimeLayoutConfig } from '@umijs/max';
 import { history, Link } from '@umijs/max';
-import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
-import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
+// import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
+import { getCurrentUser } from './services/UserService';
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
@@ -14,18 +13,17 @@ const loginPath = '/user/login';
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
 export async function getInitialState(): Promise<{
-  settings?: Partial<LayoutSettings>;
   currentUser?: API.CurrentUser;
-  loading?: boolean;
   fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
 }> {
   const fetchUserInfo = async () => {
     try {
-      const msg = await queryCurrentUser({
-        skipErrorHandler: true,
-      });
-      return msg.data;
+      const res = await getCurrentUser();
+      // const res = {data: '233'}
+      // console.log('res: ', res);
+      return res;
     } catch (error) {
+      console.log('error: ', error)
       history.push(loginPath);
     }
     return undefined;
@@ -37,34 +35,36 @@ export async function getInitialState(): Promise<{
     return {
       fetchUserInfo,
       currentUser,
-      settings: defaultSettings as Partial<LayoutSettings>,
     };
   }
   return {
-    fetchUserInfo,
-    settings: defaultSettings as Partial<LayoutSettings>,
+    fetchUserInfo
   };
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   return {
-    actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
+    // 图标icon 阿里巴巴矢量图标库
+    iconfontUrl: '//at.alicdn.com/t/c/font_4471740_optqbr475qf.js',
+    actionsRender: () => [<Question key="doc" />],
     avatarProps: {
-      src: initialState?.currentUser?.avatar,
+      src: initialState?.currentUser?.avatar ? initialState?.currentUser?.avatar : 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
       title: <AvatarName />,
       render: (_, avatarChildren) => {
         return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
       },
     },
     waterMarkProps: {
-      content: initialState?.currentUser?.name,
+      content: initialState?.currentUser?.username,
     },
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
+      const hasToken = localStorage.getItem('token');
       // 如果没有登录，重定向到 login
-      if (!initialState?.currentUser && location.pathname !== loginPath) {
+      if (!hasToken && location.pathname !== loginPath) {
+        console.log('重定向到： ', loginPath)
         history.push(loginPath);
       }
     },
@@ -109,7 +109,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
             <SettingDrawer
               disableUrlParams
               enableDarkTheme
-              settings={initialState?.settings}
+              // settings={initialState?.settings}
               onSettingChange={(settings) => {
                 setInitialState((preInitialState) => ({
                   ...preInitialState,
@@ -121,7 +121,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         </>
       );
     },
-    ...initialState?.settings,
+    // ...initialState?.settings,
   };
 };
 
@@ -131,6 +131,8 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
  * @doc https://umijs.org/docs/max/request#配置
  */
 export const request: RequestConfig = {
-  baseURL: 'https://proapi.azurewebsites.net',
+  // baseURL: 'https://proapi.azurewebsites.net',
+  baseURL: 'http://localhost:3000',
+  withCredentials: true,
   ...errorConfig,
 };
