@@ -1,5 +1,10 @@
 import { queryUsersByPage, userRegister } from '@/services/UserService';
 import { Button, Divider, Flex, message } from 'antd';
+import { insertRandomVisitedBehavior } from './util/VisitedBehaviorMock'
+import { insertRandomPurchaseData } from './util/PurchaseBehaviorMock';
+import { insertRandomSearchData } from './util/SearchBehaviorMock';
+import { insertRandomCommentData } from './util/CommnetBehaviorMock';
+import { insertRandomSocialInteractData } from './util/InteractBehaviorMock';
 
 const TestPage = () => {
   // 生成随机邮箱
@@ -92,6 +97,21 @@ const TestPage = () => {
         </Button>
         <Button type="primary" onClick={testClick}>
           测试
+        </Button>
+        <Button type="primary" onClick={insertRandomVisitedBehavior}>
+          创建十条用户浏览行为数据
+        </Button>
+        <Button type="primary" onClick={insertRandomPurchaseData}>
+          创建十条用户购买行为数据
+        </Button>
+        <Button type="primary" onClick={insertRandomSearchData}>
+          创建十条用户搜索行为数据
+        </Button>
+        <Button type="primary" onClick={insertRandomCommentData}>
+          创建十条用户评论行为数据
+        </Button>
+        <Button type="primary" onClick={insertRandomSocialInteractData}>
+          创建十条用户交互行为数据
         </Button>
       </Flex>
     </>
