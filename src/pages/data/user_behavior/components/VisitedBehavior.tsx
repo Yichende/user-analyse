@@ -96,16 +96,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
   );
 };
 
-const UserBehaviorPage: React.FC = () => {
+const VisitedTable: React.FC = () => {
   const [form] = Form.useForm();
-  const [users, setUsers] = useState([]);
+  const [behaviorData, setBehaviorData] = useState([]);
   const [editingKey, setEditingKey] = useState('');
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // const childRef = React.useRef<CreateUser>(null);
 
   const isEditing = (record: Item) => record.account === editingKey;
 
@@ -122,7 +119,7 @@ const UserBehaviorPage: React.FC = () => {
     try {
       const row = (await form.validateFields()) as updateItem;
 
-      const newData = [...users];
+      const newData = [...behaviorData];
       const index = newData.findIndex((item) => user_id === item.user_id);
       console.log('SAVVEE INDEX: ', index);
       if (index > -1) {
@@ -142,11 +139,11 @@ const UserBehaviorPage: React.FC = () => {
           message.success('更改成功');
         }
 
-        setUsers(newData);
+        setBehaviorData(newData);
         setEditingKey('');
       } else {
         newData.push(row);
-        setUsers(newData);
+        setBehaviorData(newData);
         setEditingKey('');
       }
     } catch (errInfo) {
@@ -236,8 +233,8 @@ const UserBehaviorPage: React.FC = () => {
   });
   // 时间格式以及Role转中文
   const formattedArray = (value: any) => {
-    const users = value.users;
-    const newArr = users.map(function (arr) {
+    const behaviorData = value.behaviorData;
+    const newArr = behaviorData.map(function (arr) {
       const date = new Date(arr.create_time);
       // let roleName = '';
       // const keyToReplace = 'role';
@@ -267,8 +264,8 @@ const UserBehaviorPage: React.FC = () => {
     try {
       const userData = await queryUsersByPage(100, 0);
       const userDataFormat = await formattedArray(userData);
-      setUsers(userDataFormat);
-      // console.log('users: ', userDataFormat);
+      setBehaviorData(userDataFormat);
+      // console.log('behaviorData: ', userDataFormat);
     } catch (error) {
       console.log(error);
     }
@@ -369,23 +366,8 @@ const UserBehaviorPage: React.FC = () => {
     };
   });
 
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleOk = () => {
-    console.log('23242');
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
   return (
-    <Flex gap="middle" vertical>
-      <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-        {/* <CreateUser ref={childRef} /> */}
-      </Modal>
+    <div>
       <Form form={form} component={false}>
         <Table
           components={{
@@ -394,7 +376,7 @@ const UserBehaviorPage: React.FC = () => {
             },
           }}
           bordered
-          dataSource={users}
+          dataSource={behaviorData}
           columns={mergedColumns}
           rowKey="user_id"
           rowClassName="editable-row"
@@ -403,8 +385,8 @@ const UserBehaviorPage: React.FC = () => {
           }}
         />
       </Form>
-    </Flex>
+    </div>
   );
 };
 
-export default UserBehaviorPage;
+export default VisitedTable;

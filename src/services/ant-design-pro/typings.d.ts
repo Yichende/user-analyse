@@ -7,7 +7,7 @@ declare namespace API {
     password: string;
     contains?: string;
     role: string;
-  }
+  };
 
   type CurrentUser = {
     username?: string;
@@ -19,11 +19,11 @@ declare namespace API {
   };
 
   type UserUpdated = {
-    user_id: number,
-    account: string,
-    username: string,
+    user_id: number;
+    account: string;
+    username: string;
     role: string;
-  }
+  };
 
   type LoginResult = {
     status?: string;
@@ -35,6 +35,45 @@ declare namespace API {
     current?: number;
     pageSize?: number;
   };
+
+  // -----------------Mock
+  type VisitedBehavior = {
+    user_id: number;
+    visited_time: string;
+    visited_target: string;
+    duration_minutes: number;
+  };
+
+  type PurchaseBehavior = {
+    user_id: number;
+    purchase_time: string;
+    purchased_product: string;
+    quantity: number;
+    total_amount: number;
+  };
+
+  type SearchBehavior = {
+    user_id: number;
+    search_time: string;
+    search_query: string;
+    results_count: number;
+  };
+
+  type CommentBehavior = {
+    user_id: number;
+    comment_time: string;
+    comment_target: string;
+    rating: number;
+    comment: string;
+  };
+
+  type InteractBehavior = {
+    user_id: number;
+    interact_time: string;
+    interact_target: string;
+    interact_type: string;
+  }
+  // -----------------
 
   type RuleListItem = {
     key?: number;

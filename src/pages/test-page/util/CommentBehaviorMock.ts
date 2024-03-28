@@ -1,3 +1,5 @@
+import { insertCommentBehavior } from "@/services/MockService";
+
 // 创建十条随机用户评论行为数据
 export async function insertRandomCommentData() {
   // 生成随机用户ID
@@ -81,12 +83,22 @@ export async function insertRandomCommentData() {
   // 生成随机用户评论数据并插入数据库
   for (let i = 0; i < 10; i++) {
     const user_id = generateRandomUserID();
-    const date_time = generateRandomDateTime();
-    const product = products[Math.floor(Math.random() * products.length)];
+    const comment_time = generateRandomDateTime();
+    const comment_target = products[Math.floor(Math.random() * products.length)];
     const rating = generateRandomRating();
     const comment = comments[Math.floor(Math.random() * comments.length)];
+    const value = { user_id, comment_time, comment_target, rating, comment }
 
-    commentData.push({ user_id, date_time, product, rating, comment });
+    commentData.push(value);
+
+    try {
+      setTimeout(async () => {
+        const res = await insertCommentBehavior(value);
+        console.log('res: ', res);
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+    }
   }
   console.log('CommentData: ', commentData);
 }

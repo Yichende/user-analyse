@@ -76,18 +76,6 @@ const CreateUser: FC = React.forwardRef((props, ref) => {
     }
     return 'poor';
   };
-  // 登录成功后，获取用户登录信息
-  // const fetchUserInfo = async () => {
-  //   const userInfo = await getCurrentUser();
-  //   if (userInfo) {
-  //     flushSync(() => {
-  //       setInitialState((s) => ({
-  //         ...s,
-  //         currentUser: userInfo,
-  //       }));
-  //     });
-  //   }
-  // };
 
   const onFinish = async (values: API.UserRegisterParams) => {
     // 向后端发送注册请求

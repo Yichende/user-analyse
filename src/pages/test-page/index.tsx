@@ -1,9 +1,10 @@
-import { queryUsersByPage, userRegister } from '@/services/UserService';
+import { userRegister } from '@/services/UserService';
+import { queryVisitedBehavior, queryPurchaseBehavior, querySearchBehavior, queryCommentBehavior, queryInteractBehavior } from '@/services/BehaviorService';
 import { Button, Divider, Flex, message } from 'antd';
 import { insertRandomVisitedBehavior } from './util/VisitedBehaviorMock'
 import { insertRandomPurchaseData } from './util/PurchaseBehaviorMock';
 import { insertRandomSearchData } from './util/SearchBehaviorMock';
-import { insertRandomCommentData } from './util/CommnetBehaviorMock';
+import { insertRandomCommentData } from './util/CommentBehaviorMock';
 import { insertRandomSocialInteractData } from './util/InteractBehaviorMock';
 
 const TestPage = () => {
@@ -73,13 +74,15 @@ const TestPage = () => {
     });
     return newArr;
   };
-
+// queryVisitedBehavior, 
+// queryPurchaseBehavior, 
+// querySearchBehavior, 
+// queryCommentBehavior, 
+// queryInteractBehavior
   const testClick = async () => {
     try {
-      const users = await queryUsersByPage(10, 0);
-      console.log('users: ', users);
-      const newUsersArr = formattedArray(users);
-      console.log('userCCC: ', newUsersArr);
+      const res = await queryInteractBehavior();
+      console.log('res: ', res);
     } catch (error) {
       console.log('ERROR:::: ', error);
     }
