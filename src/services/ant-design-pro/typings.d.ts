@@ -25,6 +25,11 @@ declare namespace API {
     role: string;
   };
 
+  type UserNameUpdate = {
+    account: string;
+    username: string;
+  }
+
   type LoginResult = {
     status?: string;
     type?: string;

@@ -4,7 +4,7 @@ import { ProForm, ProFormText } from '@ant-design/pro-components';
 import { Button, Divider, Flex, Form, message, Upload } from 'antd';
 import React, { useEffect, useState } from 'react';
 import useStyles from './index.style';
-import { comparePassword, changePassword } from '@/services/UserService';
+import { updateUserName } from '@/services/UserService';
 
 const BaseView: React.FC = () => {
   const { styles } = useStyles();
@@ -34,6 +34,7 @@ const BaseView: React.FC = () => {
     const user = data;
     form.setFieldsValue({
       account: user.account,
+      role: user.role,
       username: user.username,
     });
   };
@@ -51,34 +52,31 @@ const BaseView: React.FC = () => {
       });
   }, []);
 
-  const testClick = async() => {
-    const res = await changePassword('123456', '123456')
-    console.log('resultTest: ', res);
-  };
 
   const getAvatarURL = () => {
     const url = 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png';
     return initialUserInfo.avatar ? initialUserInfo.avatar : url;
   };
   const handleFinish = async () => {
-    message.success('更新基本信息成功');
+    const username = form.getFieldValue('username')
+    const account = form.getFieldValue('account')
+    const values = {username, account}
+    try {
+      const res  = await updateUserName(values)
+      if (res.message === 'success') {
+        message.success('更新基本信息成功');
+      } else {
+        message.error('更新失败')
+      }
+    }catch(error) {
+      console.log(error)
+    }
   };
   return (
     <div className={styles.baseView}>
       {
         <>
           <div className={styles.left}>
-            <>
-              <Divider orientation="left" plain>
-                Preview
-              </Divider>
-
-              <Flex gap="small" align="flex-start" vertical>
-                <Button type="primary" onClick={testClick}>
-                  Primary
-                </Button>
-              </Flex>
-            </>
             <ProForm
               layout="vertical"
               onFinish={handleFinish}
@@ -95,6 +93,12 @@ const BaseView: React.FC = () => {
                 width="md"
                 name="account"
                 label="账号"
+                disabled
+              />
+              <ProFormText
+                width="md"
+                name="role"
+                label="用户角色"
                 disabled
               />
               <ProFormText

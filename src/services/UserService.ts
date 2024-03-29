@@ -86,3 +86,14 @@ export async function updateUser(values: API.UserUpdated) {
     data: JSON.stringify(values),
   })
 }
+
+export async function updateUserName(values: API.UserNameUpdate) {
+  return await request('/api/updateUserName', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    skipErrorHandler: true,
+    data: JSON.stringify(values),
+  })
+}

@@ -38,6 +38,7 @@
     "not ie <= 10"
   ],
   "dependencies": {
+    "@ant-design/charts": "^2.0.3",
     "@ant-design/icons": "^4.8.1",
     "@ant-design/plots": "^2.1.5",
     "@ant-design/pro-components": "^2.6.44",
@@ -49,6 +50,7 @@
     "antd-style": "^3.6.1",
     "classnames": "^2.5.1",
     "dayjs": "^1.11.10",
+    "echarts": "^5.5.0",
     "numeral": "^2.0.6",
     "omit.js": "^2.0.2",
     "querystring": "^0.2.1",

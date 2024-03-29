@@ -1,15 +1,13 @@
-import { queryUsersByPage, updateUser } from '@/services/UserService';
+import { queryVisitedBehavior } from '@/services/BehaviorService';
+import { updateUser } from '@/services/UserService';
 import { SearchOutlined } from '@ant-design/icons';
 import type { GetRef, TableColumnType } from 'antd';
 import {
-  Avatar,
   Button,
-  Flex,
   Form,
   Input,
   InputNumber,
   message,
-  Modal,
   Popconfirm,
   Select,
   Space,
@@ -19,20 +17,14 @@ import {
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import React, { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
-// import CreateUser from './components/CreateUser';
 
-const { Option } = Select;
-
-// const { Column, ColumnGroup } = Table;
 type InputRef = GetRef<typeof Input>;
 
 interface Item {
-  user_id: number;
-  avatar: string;
-  account: string;
-  username: string;
-  role: string;
-  create_time: Date;
+  user_id: string;
+  visited_time: string;
+  visited_target: string;
+  duration_minutes: number;
 }
 
 interface updateItem {
@@ -78,16 +70,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
             },
           ]}
         >
-          {dataIndex === 'role' ? (
-            <Select style={{ width: 120 }}>
-              <Option value="admin">admin</Option>
-              <Option value="data_admin">data_admin</Option>
-              <Option value="data_analyst">data_analyst</Option>
-            </Select>
-          ) : (
-            inputNode
-          )}
-          {/* {inputNode} */}
+        {inputNode}
         </Form.Item>
       ) : (
         children
@@ -104,11 +87,11 @@ const VisitedTable: React.FC = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
 
-  const isEditing = (record: Item) => record.account === editingKey;
+  const isEditing = (record: Item) => record.user_id === editingKey;
 
   const edit = (record: Partial<Item>) => {
-    form.setFieldsValue({ Account: '', UserName: '', Role: '', ...record });
-    setEditingKey(record.account);
+    form.setFieldsValue({ VisitedTarget: '', duration_minutes: '', ...record });
+    setEditingKey(record.user_id);
   };
 
   const cancel = () => {
@@ -129,15 +112,6 @@ const VisitedTable: React.FC = () => {
           ...item,
           ...row,
         });
-        // console.log('IITTMTMT: ', user_id);
-        // console.log('RRRR: ', row);
-        const userUpdateData = { user_id: user_id, ...row };
-        // 后台数据传row和item.user_id
-        const updated = await updateUser(userUpdateData);
-        console.log('isUpdated', updated);
-        if (updated.message === 'success') {
-          message.success('更改成功');
-        }
 
         setBehaviorData(newData);
         setEditingKey('');
@@ -216,7 +190,7 @@ const VisitedTable: React.FC = () => {
         .includes((value as string).toLowerCase()),
     onFilterDropdownOpenChange: (visible) => {
       if (visible) {
-        setTimeout(() => searchInput.current?.select(), 100);
+        setTimeout(() => searchInput.current?.select(), 3000);
       }
     },
     render: (text) =>
@@ -231,13 +205,12 @@ const VisitedTable: React.FC = () => {
         text
       ),
   });
-  // 时间格式以及Role转中文
+
+  // 时间格式
   const formattedArray = (value: any) => {
-    const behaviorData = value.behaviorData;
-    const newArr = behaviorData.map(function (arr) {
-      const date = new Date(arr.create_time);
-      // let roleName = '';
-      // const keyToReplace = 'role';
+    // const id = value.behavior_id;
+    const newArr = value.map(function (arr) {
+      const date = new Date(arr.visited_time);
       const formattedDate =
         date.getFullYear() +
         '-' +
@@ -250,81 +223,55 @@ const VisitedTable: React.FC = () => {
         ('0' + date.getMinutes()).slice(-2) +
         ':' +
         ('0' + date.getSeconds()).slice(-2);
-
       return {
         ...arr,
-        create_time: formattedDate,
-        // [keyToReplace]: roleName,
+        visited_time: formattedDate,
       };
     });
     return newArr;
   };
 
-  const initUserInfo = async () => {
+  const initVisitedInfo = async () => {
     try {
-      const userData = await queryUsersByPage(100, 0);
-      const userDataFormat = await formattedArray(userData);
-      setBehaviorData(userDataFormat);
-      // console.log('behaviorData: ', userDataFormat);
+      const visitedData = await queryVisitedBehavior();
+      const visitedDataFormat = await formattedArray(visitedData.data);
+      setBehaviorData(visitedDataFormat);
+      console.log('behaviorData: ', visitedData.data);
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    initUserInfo();
+    initVisitedInfo();
   }, []);
 
   const columns = [
     {
-      title: 'Avatar',
-      dataIndex: 'avatar',
-      width: '5%',
-      render: (avatar: string) => <Avatar src={avatar} />,
+      title: 'UserId',
+      dataIndex: 'user_id',
+      // width: '5%',
     },
     {
-      title: 'Account',
-      dataIndex: 'account',
-      width: '20%',
+      title: 'VisitedTime',
+      dataIndex: 'visited_time',
+      // width: '20%',
+      ...getColumnSearchProps('visited_time'),
+      sorter: (a, b) => new Date(a.visited_time) - new Date(b.visited_time),
+    },
+    {
+      title: 'VisitedTarget',
+      dataIndex: 'visited_target',
+      // width: '20%',
       editable: true,
-      key: 'account',
-      ...getColumnSearchProps('account'),
+      ...getColumnSearchProps('visited_target'),
     },
     {
-      title: 'UserName',
-      dataIndex: 'username',
-      width: '20%',
+      title: 'DurationMinutes',
+      dataIndex: 'duration_minutes',
+      // width: '15%',
       editable: true,
-      key: 'username',
-      ...getColumnSearchProps('username'),
-    },
-    {
-      title: 'Role',
-      dataIndex: 'role',
-      width: '15%',
-      editable: true,
-      key: 'role',
-      filters: [
-        {
-          text: 'admin',
-          value: 'admin',
-        },
-        {
-          text: 'data_admin',
-          value: 'data_admin',
-        },
-        {
-          text: 'data_analyst',
-          value: 'data_analyst',
-        },
-      ],
-      onFilter: (value, record) => record.role.includes(value),
-    },
-    {
-      title: 'CreateTime',
-      dataIndex: 'create_time',
-      key: 'create_time',
-      sorter: (a, b) => new Date(a.create_time) - new Date(b.create_time),
+      sorter: (a, b) => a.duration_minutes - b.duration_minutes,
     },
     {
       title: 'Action',
