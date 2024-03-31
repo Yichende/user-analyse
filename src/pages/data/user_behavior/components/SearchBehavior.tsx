@@ -234,7 +234,7 @@ const SearchTable: React.FC = () => {
       const searchData = await querySearchBehavior();
       const searchDataFormat = await formattedArray(searchData.data);
       setBehaviorData(searchDataFormat);
-      console.log('behaviorData: ', searchData.data);
+      // console.log('behaviorData: ', searchData.data);
     } catch (error) {
       console.log(error);
     }
@@ -323,7 +323,7 @@ const SearchTable: React.FC = () => {
           bordered
           dataSource={behaviorData}
           columns={mergedColumns}
-          rowKey="user_id"
+          rowKey="behavior_id"
           rowClassName="editable-row"
           pagination={{
             onChange: cancel,

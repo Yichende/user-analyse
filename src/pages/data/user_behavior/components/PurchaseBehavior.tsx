@@ -235,7 +235,7 @@ const PurchaseTable: React.FC = () => {
       const purchaseData = await queryPurchaseBehavior();
       const purchaseDataFormat = await formattedArray(purchaseData.data);
       setBehaviorData(purchaseDataFormat);
-      console.log('behaviorData: ', purchaseData.data);
+      // console.log('behaviorData: ', purchaseData.data);
     } catch (error) {
       console.log(error);
     }
@@ -331,7 +331,7 @@ const PurchaseTable: React.FC = () => {
           bordered
           dataSource={behaviorData}
           columns={mergedColumns}
-          rowKey="user_id"
+          rowKey="behavior_id"
           rowClassName="editable-row"
           pagination={{
             onChange: cancel,

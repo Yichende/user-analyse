@@ -236,7 +236,7 @@ const VisitedTable: React.FC = () => {
       const visitedData = await queryVisitedBehavior();
       const visitedDataFormat = await formattedArray(visitedData.data);
       setBehaviorData(visitedDataFormat);
-      console.log('behaviorData: ', visitedData.data);
+      // console.log('behaviorData: ', visitedData.data);
     } catch (error) {
       console.log(error);
     }
@@ -325,7 +325,7 @@ const VisitedTable: React.FC = () => {
           bordered
           dataSource={behaviorData}
           columns={mergedColumns}
-          rowKey="user_id"
+          rowKey="behavior_id"
           rowClassName="editable-row"
           pagination={{
             onChange: cancel,
