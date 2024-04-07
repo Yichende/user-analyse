@@ -1,7 +1,8 @@
+import { getAllChart } from '@/services/ChartService';
 import { Line } from '@antv/g2plot';
-import { Breadcrumb, Button, Card, Form, Input, message, Modal, Select, Space } from 'antd';
+import { Button, Card, Space } from 'antd';
 import { useEffect, useRef, useState } from 'react';
-import ChartForm from './components/ChartForm'
+import ChartForm from './components/ChartForm';
 
 const ChartComponent = ({ chartData }) => {
   const chartContainer = useRef(null);
@@ -31,7 +32,7 @@ const ChartComponent = ({ chartData }) => {
   }, []);
 
   console.log('data in ChartComponent chartData: ', chartData);
-  
+
   return (
     <Space direction="vertical" size={16}>
       <Card title="折线图示例" extra={<a href="#">More</a>} style={{ width: 300 }}>
@@ -72,10 +73,18 @@ const ChartPage = () => {
     setVisible(false);
   };
 
+  const handleTest = async () => {
+    const res = await getAllChart();
+    console.log('res: ', res.chartInfo[0].chart_config)
+  };
+
   return (
     <div>
       <Button type="primary" onClick={showModal}>
         New Chart
+      </Button>
+      <Button key="test" type="primary" onClick={handleTest}>
+        测试
       </Button>
       <ChartForm
         visible={visible}

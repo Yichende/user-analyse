@@ -1,5 +1,7 @@
+import { getCurrentUser } from '@/services/UserService';
 import { Breadcrumb, Button, Form, Input, message, Modal, Select } from 'antd';
 import { useEffect, useState } from 'react';
+import { addNewChart } from '@/services/ChartService';
 
 const { Option } = Select;
 
@@ -13,6 +15,7 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
   const [formData, setFormData] = useState({});
   const [breadCrumbItems, setBreadCrumbItems] = useState({});
   const [chartType, setChartType] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState();
 
   const options = [
     { value: 'visited_time', label: '访问时间' },
@@ -115,15 +118,27 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
       chart_type: data.chartType,
       chart_name: data.chartName,
       data_table_name: dataSource,
+      chart_config: {
+        xField: data.xAxis.value,
+        yField: data.yAxis.value,
+      },
+      create_user_id: currentUserId,
     };
     console.log('dataSource: ', dataSource);
 
     setFormData({ ...formData, ...value });
     console.log('Formdataaa: ', formData);
+    setTimeout(async () => {
+      await addNewChart(formData)
+    }, 1000)
   };
 
   useEffect(() => {
     console.log('EEFFFect: ', formData);
+    getCurrentUser().then((userInfo) => {
+      // console.log('userInfo: ', userInfo.userId)
+      setCurrentUserId(userInfo.userId);
+    })
   }, [formData]);
 
   return (
