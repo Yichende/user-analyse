@@ -1,7 +1,7 @@
+import { addNewChart } from '@/services/ChartService';
 import { getCurrentUser } from '@/services/UserService';
 import { Breadcrumb, Button, Form, Input, message, Modal, Select } from 'antd';
-import { useEffect, useState } from 'react';
-import { addNewChart } from '@/services/ChartService';
+import { useEffect, useState, useMemo } from 'react';
 
 const { Option } = Select;
 
@@ -22,7 +22,7 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
     { value: 'visited_target', label: '访问对象' },
     { value: 'duration_minutes', label: '停留时间(分钟)' },
   ];
-  const selectedOptions = [xAxis.value, yAxis.value];
+  let selectedOptions = [xAxis.value, yAxis.value];
   const filteredOptions = options.filter((o) => {
     return !selectedOptions.includes(o.value);
   });
@@ -49,7 +49,6 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
       form
         .validateFields()
         .then((values) => {
-          console.log('vvvvvalues: ', values);
           let breadCrumb = '';
           switch (values.dataSource) {
             case 'visited_behavior':
@@ -85,6 +84,8 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
           onCreate({ ...values, xAxis, yAxis });
           message.success('表单提交成功！');
           setStep(1);
+          setXAxis({ value: '' });
+          setYAxis({ value: '' });
           form.resetFields();
           closeModal();
         })
@@ -99,8 +100,8 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
     if (step === 1) {
       closeModal();
       setBreadCrumbItems({});
-      setXAxis(null);
-      setYAxis(null);
+      setXAxis({ value: '' });
+      setYAxis({ value: '' });
       setDataSource(null);
       setChartType(null);
       form.resetFields();
@@ -124,22 +125,38 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
       },
       create_user_id: currentUserId,
     };
-    console.log('dataSource: ', dataSource);
 
-    setFormData({ ...formData, ...value });
+    setFormData({ ...value });
     console.log('Formdataaa: ', formData);
-    setTimeout(async () => {
-      await addNewChart(formData)
-    }, 1000)
+    // await addNewChart(formData);
+    // setTimeout(async () => {
+    //   await addNewChart(formData);
+    // }, 1000);
+    // setTimeout(() => {
+    //   setFormData({});
+    // }, 1000);
   };
 
+  const sendChartData = async () => {
+    // console.log('send')
+    await addNewChart(formData);
+    // console.log('after send', formData)
+  }
+
   useEffect(() => {
-    console.log('EEFFFect: ', formData);
     getCurrentUser().then((userInfo) => {
       // console.log('userInfo: ', userInfo.userId)
       setCurrentUserId(userInfo.userId);
-    })
-  }, [formData]);
+    });
+  }, []);
+
+  useMemo(() => {
+    console.log('Formdata in memo: ', formData);
+    if (Object.entries(formData).length !== 0 ) {
+      console.log('sendChartData')
+      // sendChartData()
+    }
+  }, [formData])
 
   return (
     <Modal
