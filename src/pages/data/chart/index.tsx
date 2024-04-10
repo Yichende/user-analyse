@@ -4,12 +4,14 @@ import { Button, Pagination } from 'antd';
 import { useEffect, useState } from 'react';
 import ChartComponent from './components/ChartComponent';
 import ChartForm from './components/ChartForm';
+import { reject } from 'lodash';
 
 const ChartPage = () => {
   const [visible, setVisible] = useState(false);
-  const [chartData, setChartData] = useState(null);
+  // const [chartData, setChartData] = useState(null);
   const [visitedBehavior, setVisitedBehavior] = useState([]);
   const [chartInfo, setChartInfo] = useState([]);
+  const [currentCards, setCurrentCards]  = useState([])
 
   // 填完表单后发送请求给后端拿数据
   const handleCreate = (values) => {
@@ -40,24 +42,29 @@ const ChartPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   // 每页显示的卡片数量
-  const cardsPerPage = 6;
+  const cardsPerPage = 3;
 
   // 计算当前页要显示的卡片范围
   const startIndex = (currentPage - 1) * cardsPerPage;
   const endIndex = startIndex + cardsPerPage;
 
   // 根据当前页码获取对应的卡片数据
-  const currentCards = chartInfo.slice(startIndex, endIndex);
+  // const currentCards = chartInfo.slice(startIndex, endIndex);
+  // setCurrentCards(chartInfo.slice(startIndex, endIndex))
 
   // 处理页码变化的回调函数
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
   const initChartData = async () => {
+    console.log("initChartData in parent")
     const chartInfo = await getAllChart();
-    setChartInfo(chartInfo.chartInfo);
-    // const visitedData = await queryVisitedBehavior();
-    // setVisitedBehavior(visitedData.data);
+    // 更改显示顺序
+    chartInfo.chartInfo.sort((a, b) => new Date(b.last_updated) - new Date(a.last_updated))
+    new Promise((resolve, reject) => {
+      setChartInfo(chartInfo.chartInfo);
+      resolve('success')
+    }).then(() => setCurrentCards(chartInfo.chartInfo.slice(startIndex, endIndex)))
   };
 
   useEffect(() => {
@@ -86,7 +93,7 @@ const ChartPage = () => {
           </Card>
         ))} */}
 
-        <ChartComponent currentCards={currentCards} />
+        <ChartComponent initChartInfo={initChartData} currentCards={currentCards} />
 
         {/* 分页器组件 */}
         <Pagination

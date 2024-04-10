@@ -20,3 +20,14 @@ export async function getAllChart() {
     skipErrorHandler: true, // 跳过错误处理
   });
 }
+
+export async function delChartByChartId(chartId: number) {
+  return await request('/api/deleteChartByChartId', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    skipErrorHandler: true, // 跳过错误处理
+    data: JSON.stringify({chartId: chartId}),
+  });
+}

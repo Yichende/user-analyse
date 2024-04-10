@@ -128,7 +128,7 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
 
     setFormData({ ...value });
     console.log('Formdataaa: ', formData);
-    // await addNewChart(formData);
+    await addNewChart(formData);
     // setTimeout(async () => {
     //   await addNewChart(formData);
     // }, 1000);
@@ -204,7 +204,7 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
               <Select placeholder="请选择图表类型" onChange={handleChartTypeChange}>
                 <Option value="Line">折线图</Option>
                 <Option value="Column">柱状图</Option>
-                <Option value="Pie">饼图</Option>
+                <Option value="Scatter">散点图</Option>
               </Select>
             </Form.Item>
             <Form.Item name="xAxis" label="X轴数据" rules={[{ required: true }]}>
