@@ -69,9 +69,14 @@
       },
       {
         name: '我的分析',
-        path: 'analysis/analysis_my',
+        path: '/analysis/analysis_my',
         component: './analysis/my_analysis'
-      }
+      },
+      {
+        name: '添加分析',
+        path: '/analysis/analysis_add',
+        component: './analysis/add_analysis'
+      },
     ]
   },
   {

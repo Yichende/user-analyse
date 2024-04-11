@@ -2,16 +2,19 @@ import { queryVisitedBehavior } from '@/services/BehaviorService';
 import { delChartByChartId } from '@/services/ChartService';
 import { DeleteOutlined, EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
 import { Column, Line, Scatter } from '@ant-design/plots';
-import { Avatar, Button, Card, message, Popover } from 'antd';
+import { Avatar, Button, Card, Checkbox, message, Popover } from 'antd';
 import { useEffect, useState } from 'react';
+import { history } from '@umijs/max';
 
 const { Meta } = Card;
 
 const ChartComponent = ({ initChartInfo, currentCards }) => {
-  const [visitedBehavior, setVisitedBehavior] = useState([]);
   const [target_duration_visitedBehavior, setTarget_duration_visitedBehavior] = useState([]);
   const [time_duration_visitedBehavior, setTime_duration_visitedBehavior] = useState([]);
   const [time_target_visitedBehavior, setTime_target_visitedBehavior] = useState([]);
+  // const history = useHistory();
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [selectedCharts, setSelectedCharts] = useState([]);
   // target_duration
 
   console.log('someInfo: ', currentCards);
@@ -168,6 +171,29 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
     </div>
   );
 
+  const handleCheckboxChange = (chartId) => {
+    if (selectedCharts.includes(chartId)) {
+      setSelectedCharts(selectedCharts.filter((id) => id !== chartId));
+    } else {
+      setSelectedCharts([...selectedCharts, chartId]);
+    }
+  };
+
+  const handleButtonClick = () => {
+    setShowCheckboxes(!showCheckboxes);
+    setSelectedCharts([])
+  };
+
+  const handleConfirm = () => {
+    // 在这里处理选中的图表
+    // 可以将选中的图表传递给另一个页面，例如使用路由参数
+    // history.push(`/selected-charts?charts=${selectedCharts.join(',')}`);
+    history.push({
+      pathname: `/analysis/analysis_add?chartId=${selectedCharts.join(',')}`,
+    });
+    console.log('selectedCharts', selectedCharts);
+  };
+
   const testClick = () => {
     console.log('currentCards: ', currentCards);
   };
@@ -177,6 +203,10 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
       <Button type="primary" onClick={testClick}>
         TEST
       </Button>
+      <Button onClick={handleButtonClick}>
+        {showCheckboxes ? 'Hide Checkboxes' : 'Show Checkboxes'}
+      </Button>
+      {showCheckboxes && <Button onClick={handleConfirm}>Confirm</Button>}
       {currentCards.map((card, index) => (
         <Card
           key={index}
@@ -197,6 +227,17 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
               <span style={{ marginLeft: 5 }}>更多</span>
             </Popover>,
           ]}
+          extra={
+            showCheckboxes && (
+              <>
+                <Checkbox
+                  onChange={() => handleCheckboxChange(card.chart_id)}
+                  checked={selectedCharts.includes(card.chart_id)}
+                />
+                <span style={{marginLeft: 5}}>选择</span>
+              </>
+            )
+          }
         >
           {card.chart_type === 'Line' && (
             <Line
@@ -251,10 +292,6 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
             title={card.username}
             description={`最后更新时间：${formattedTime(card.last_updated)}`}
           />
-          {/* <p>Chart Type: {card.chart_type}</p>
-          <p>Last Updated: {formattedTime(card.last_updated)}</p>
-          <p>XX: {JSON.parse(card.chart_config)['xField']}</p>
-          <p>YY: {JSON.parse(card.chart_config)['yField']}</p> */}
         </Card>
       ))}
     </>

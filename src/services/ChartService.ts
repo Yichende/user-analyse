@@ -31,3 +31,14 @@ export async function delChartByChartId(chartId: number) {
     data: JSON.stringify({chartId: chartId}),
   });
 }
+
+export async function getChartsByChartId(chartId: string) {
+  return await request('/api/getChartsByChartId', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    skipErrorHandler: true,
+    params: {chartId: chartId},
+  });
+}

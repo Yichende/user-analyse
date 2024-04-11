@@ -6,6 +6,7 @@ import { insertRandomPurchaseData } from './util/PurchaseBehaviorMock';
 import { insertRandomSearchData } from './util/SearchBehaviorMock';
 import { insertRandomCommentData } from './util/CommentBehaviorMock';
 import { insertRandomSocialInteractData } from './util/InteractBehaviorMock';
+import { insertRandomChartData } from './util/ChartMock';
 
 const TestPage = () => {
   // 生成随机邮箱
@@ -74,11 +75,6 @@ const TestPage = () => {
     });
     return newArr;
   };
-// queryVisitedBehavior, 
-// queryPurchaseBehavior, 
-// querySearchBehavior, 
-// queryCommentBehavior, 
-// queryInteractBehavior
   const testClick = async () => {
     try {
       const res = await queryInteractBehavior();
@@ -115,6 +111,9 @@ const TestPage = () => {
         </Button>
         <Button type="primary" onClick={insertRandomSocialInteractData}>
           创建十条用户交互行为数据
+        </Button>
+        <Button type="primary" onClick={insertRandomChartData}>
+          创建十张图表
         </Button>
       </Flex>
     </>
