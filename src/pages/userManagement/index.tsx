@@ -253,23 +253,6 @@ const UserManagementPage: React.FC = () => {
         ('0' + date.getMinutes()).slice(-2) +
         ':' +
         ('0' + date.getSeconds()).slice(-2);
-
-      // if (arr.hasOwnProperty(keyToReplace)) {
-      //   switch (arr.role) {
-      //     case 'admin':
-      //       roleName = '管理员';
-      //       break;
-      //     case 'data_admin':
-      //       roleName = '数据管理员';
-      //       break;
-      //     case 'data_analyst':
-      //       roleName = '数据分析师';
-      //       break;
-      //     default:
-      //       roleName = '';
-      //   }
-      // }
-
       return {
         ...arr,
         create_time: formattedDate,

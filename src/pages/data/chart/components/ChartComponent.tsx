@@ -17,7 +17,7 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
   const [selectedCharts, setSelectedCharts] = useState([]);
   // target_duration
 
-  console.log('someInfo: ', currentCards);
+  // console.log('someInfo: ', currentCards);
 
   // 年月日时分秒
   const formattedTime = (time: string) => {
@@ -133,7 +133,7 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
 
   const initChartData = async () => {
     const visitedData = await queryVisitedBehavior();
-    console.log('visitedData: ', new Date(visitedData.data[0].visited_time));
+    // console.log('visitedData: ', new Date(visitedData.data[0].visited_time));
     await target_duration(visitedData.data);
     await time_duration(visitedData.data);
     await time_target(visitedData.data);

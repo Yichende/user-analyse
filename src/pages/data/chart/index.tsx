@@ -43,17 +43,16 @@ const ChartPage = () => {
   const startIndex = (currentPage - 1) * cardsPerPage;
   const endIndex = startIndex + cardsPerPage;
 
-  // setCurrentCards(chartInfo.slice(startIndex, endIndex))
-
-  // 根据当前页码获取对应的卡片数据
-  // const currentCards = chartInfo.slice(startIndex, endIndex);
-  // setCurrentCards(chartInfo.slice(startIndex, endIndex))
-
   // 处理页码变化的回调函数
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    // 计算当前页要显示的卡片范围
+    const startIndex = (page - 1) * cardsPerPage;
+    const endIndex = startIndex + cardsPerPage;
     setCurrentCards(chartInfo.slice(startIndex, endIndex));
+    // console.log('pageInfo: ', currentCards, page);
   };
+
   const initChartData = async () => {
     console.log('initChartData in parent');
     const chart = await getAllChart();

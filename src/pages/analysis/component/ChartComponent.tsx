@@ -2,6 +2,7 @@ import { queryVisitedBehavior } from '@/services/BehaviorService';
 import { Column, Line, Scatter } from '@ant-design/plots';
 import { Card } from 'antd';
 import { useEffect, useState } from 'react';
+import { history } from '@umijs/max';
 
 const ChartComponent = ({ card }) => {
   const [target_duration_visitedBehavior, setTarget_duration_visitedBehavior] = useState([]);
@@ -118,11 +119,18 @@ const ChartComponent = ({ card }) => {
 
   const initChartData = async () => {
     const visitedData = await queryVisitedBehavior();
-    console.log('visitedData: ', new Date(visitedData.data[0].visited_time));
+    // console.log('visitedData: ', new Date(visitedData.data[0].visited_time));
     await target_duration(visitedData.data);
     await time_duration(visitedData.data);
     await time_target(visitedData.data);
   };
+
+
+  const toAddChart = () => {
+    history.push({
+      pathname: `/data/chart`,
+    });
+  }
 
   useEffect(() => {
     initChartData();
@@ -130,8 +138,7 @@ const ChartComponent = ({ card }) => {
 
   return (
     <div>
-      {/* <div>{ currentCards }</div> */}
-      <Card title={chart_name}>
+      <Card title={chart_name} extra={<a href="#" onClick={toAddChart}>选择其他图表</a>}>
         {chart_type === 'Line' && (
           <Line
             data={selectData(

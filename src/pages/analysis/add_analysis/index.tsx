@@ -1,7 +1,9 @@
+import { addAnalysis } from '@/services/AnalysisService';
 import { getChartsByChartId } from '@/services/ChartService';
+import { getCurrentUser } from '@/services/UserService';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { useSearchParams } from '@umijs/max';
-import { Button, Card, Carousel, Col, Divider, Empty, Form, Input, Row } from 'antd';
+import { history, useSearchParams } from '@umijs/max';
+import { Button, Card, Carousel, Col, Divider, Empty, Form, Input, message, Row } from 'antd';
 import { useEffect, useState } from 'react';
 import ChartComponent from '../component/ChartComponent';
 
@@ -10,8 +12,7 @@ const AddAnalysisPage = () => {
   const [params] = useSearchParams();
   const [currentCards, setCurrentCards] = useState([]);
   const [chartId, setChartId] = useState(null);
-
-  const selectChartId = params?.get('chartId');
+  const [currentUserId, setCurrentUserId] = useState(0);
 
   const handleNext = () => {
     setCurrentChart((prev) => (prev + 1) % 2);
@@ -21,8 +22,17 @@ const AddAnalysisPage = () => {
     setCurrentChart((prev) => (prev - 1 + 2) % 2);
   };
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     console.log('Received values:', values);
+    const analysisInfo = {
+      analysis_name: values.analysis_name,
+      analysis_description: values.analysis_description,
+      create_user_id: currentUserId,
+      chart_id: chartId,
+    };
+    console.log('analysisInfo: ', analysisInfo);
+    await addAnalysis(analysisInfo);
+    message.success('提交成功');
   };
   const test = async () => {
     const id = params?.get('chartId');
@@ -34,6 +44,9 @@ const AddAnalysisPage = () => {
   };
 
   const initChartInfo = async () => {
+    getCurrentUser().then((userInfo) => {
+      setCurrentUserId(userInfo.userId);
+    });
     const id = params?.get('chartId');
     setChartId(id);
     if (id !== null || chartId !== null) {
@@ -41,8 +54,14 @@ const AddAnalysisPage = () => {
       setCurrentCards(chartInfo.chartInfo);
       console.log('chartInfo', chartInfo.chartInfo);
     } else {
-      console.log('chartId is null')
+      console.log('chartId is null');
     }
+  };
+
+  const toAddChart = () => {
+    history.push({
+      pathname: `/data/chart`,
+    });
   };
 
   useEffect(() => {
@@ -57,14 +76,27 @@ const AddAnalysisPage = () => {
           nextArrow={<RightOutlined onClick={handleNext} />}
           prevArrow={<LeftOutlined onClick={handlePrev} />}
         >
-          {/* {currentCards.map((card, index) => (
-            <div key={index}>{chartId !== null ? <ChartComponent card={card} /> : <Empty />}</div>
-          ))} */}
-          <Card title='暂无数据'><Empty /></Card>
+          {currentCards.map((card, index) => (
+            <div key={index}>
+              <ChartComponent card={card} />
+            </div>
+          ))}
+          {!chartId && (
+            <Card
+              title="图表-暂无数据"
+              extra={
+                <a href="#" onClick={toAddChart}>
+                  添加图表
+                </a>
+              }
+            >
+              <Empty />
+            </Card>
+          )}
         </Carousel>
       </Col>
       <Col span={12}>
-        <Card title="Form">
+        <Card title="分析">
           <Form layout="vertical" onFinish={onFinish}>
             <Form.Item
               name="analysis_name"
