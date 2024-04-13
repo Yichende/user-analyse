@@ -14,6 +14,8 @@ const AddAnalysisPage = () => {
   const [chartId, setChartId] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(0);
 
+  const [form] = Form.useForm();
+
   const handleNext = () => {
     setCurrentChart((prev) => (prev + 1) % 2);
   };
@@ -33,6 +35,11 @@ const AddAnalysisPage = () => {
     console.log('analysisInfo: ', analysisInfo);
     await addAnalysis(analysisInfo);
     message.success('提交成功');
+    history.replace({
+      pathname: `/analysis/analysis_add`,
+    });
+    form.resetFields();
+    setChartId(null);
   };
   const test = async () => {
     const id = params?.get('chartId');
@@ -76,11 +83,20 @@ const AddAnalysisPage = () => {
           nextArrow={<RightOutlined onClick={handleNext} />}
           prevArrow={<LeftOutlined onClick={handlePrev} />}
         >
-          {currentCards.map((card, index) => (
+          {chartId && (
+            <>
+              {currentCards.map((card, index) => (
+                <div key={index}>
+                  <ChartComponent card={card} />
+                </div>
+              ))}
+            </>
+          )}
+          {/* {currentCards.map((card, index) => (
             <div key={index}>
               <ChartComponent card={card} />
             </div>
-          ))}
+          ))} */}
           {!chartId && (
             <Card
               title="图表-暂无数据"
@@ -97,7 +113,7 @@ const AddAnalysisPage = () => {
       </Col>
       <Col span={12}>
         <Card title="分析">
-          <Form layout="vertical" onFinish={onFinish}>
+          <Form form={form} layout="vertical" onFinish={onFinish}>
             <Form.Item
               name="analysis_name"
               label="分析名称"

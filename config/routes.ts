@@ -85,7 +85,7 @@
     path: '/account',
     routes: [
       { path: '/account', redirect: '/account/center' },
-      { name: '个人中心', icon: 'smile', path: '/account/center', component: './account/center' },
+      // { name: '个人中心', icon: 'smile', path: '/account/center', component: './account/center' },
       {
         name: '个人设置',
         icon: 'smile',

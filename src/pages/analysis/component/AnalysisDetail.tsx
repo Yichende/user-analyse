@@ -2,7 +2,7 @@ import { addAnalysis } from '@/services/AnalysisService';
 import { getChartsByChartId } from '@/services/ChartService';
 import { getCurrentUser } from '@/services/UserService';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { history, useSearchParams } from '@umijs/max';
+import { history } from '@umijs/max';
 import {
   Button,
   Card,
@@ -49,23 +49,6 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel }) => {
 
   const [form] = Form.useForm();
 
-  // const initChartInfo = async () => {
-  //   getCurrentUser().then((userInfo) => {
-  //     setCurrentUserId(userInfo.userId);
-  //   });
-  //   if (chartId !== null) {
-  //     const chartInfo = await getChartsByChartId(chartId);
-  //     setCurrentCards(chartInfo.chartInfo);
-  //     // console.log('chartInfo', chartInfo.chartInfo);
-  //   } else {
-  //     console.log('chartId is null');
-  //   }
-  //   form.setFieldsValue({
-  //     analysis_name: initAnalysisInfo.analysis_name,
-  //     analysis_description: initAnalysisInfo.analysis_description,
-  //   });
-  // };
-
   const initChartInfo = async () => {
     try {
       const userInfo = await getCurrentUser();
@@ -87,12 +70,6 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel }) => {
     }
   };
 
-  const toAddChart = () => {
-    history.push({
-      pathname: `/data/chart`,
-    });
-  };
-
   useEffect(() => {
     if (initAnalysisInfo.chart_id) {
       initChartInfo();
@@ -103,7 +80,6 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel }) => {
     console.log('initAnalysisInfo: ', initAnalysisInfo);
     console.log('open: ', open);
     console.log('test: ', testId);
-    // initChartInfo();
   };
 
   return (
@@ -121,14 +97,7 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel }) => {
               </div>
             ))}
             {!initAnalysisInfo.chart_id && (
-              <Card
-                title="图表-暂无数据"
-                extra={
-                  <a href="#" onClick={toAddChart}>
-                    添加图表
-                  </a>
-                }
-              >
+              <Card title="图表-暂无数据">
                 <Empty />
               </Card>
             )}

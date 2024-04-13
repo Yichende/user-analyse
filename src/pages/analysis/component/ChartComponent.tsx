@@ -138,7 +138,7 @@ const ChartComponent = ({ card }) => {
 
   return (
     <div>
-      <Card title={chart_name} extra={<a href="#" onClick={toAddChart}>选择其他图表</a>}>
+      <Card title={chart_name}>
         {chart_type === 'Line' && (
           <Line
             data={selectData(
