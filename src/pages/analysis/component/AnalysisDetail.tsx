@@ -2,7 +2,6 @@ import { addAnalysis } from '@/services/AnalysisService';
 import { getChartsByChartId } from '@/services/ChartService';
 import { getCurrentUser } from '@/services/UserService';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
-import { history } from '@umijs/max';
 import {
   Button,
   Card,
@@ -19,7 +18,7 @@ import {
 import { useEffect, useState } from 'react';
 import ChartComponent from '../component/ChartComponent';
 
-const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel }) => {
+const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel, componentDisabled }) => {
   const [currentChart, setCurrentChart] = useState(0);
   const [currentCards, setCurrentCards] = useState([]);
   const [currentUserId, setCurrentUserId] = useState(0);
@@ -105,7 +104,7 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel }) => {
         </Col>
         <Col span={12}>
           <Card title="分析">
-            <Form form={form} layout="vertical" onFinish={onFinish}>
+            <Form form={form} disabled={componentDisabled} layout="vertical" onFinish={onFinish}>
               <Form.Item
                 name="analysis_name"
                 label="分析名称"

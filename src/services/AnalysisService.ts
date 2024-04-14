@@ -21,3 +21,27 @@ export async function queryAllAnalysis() {
     skipErrorHandler: true, // 跳过错误处理
   });
 }
+
+export async function delAnalysisById(analysisId: number) {
+  console.log('analysisId: ', analysisId )
+  return await request('/api/delAnalysisById', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    skipErrorHandler: true, // 跳过错误处理
+    data: JSON.stringify({analysisId: analysisId})
+  });
+}
+
+export async function queryAnalysisByCreateUserId(creatorId: number) {
+  console.log('creatorId: ', creatorId )
+  return await request('/api/queryAnalysisByCreateUserId', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    skipErrorHandler: true, // 跳过错误处理
+    data: JSON.stringify({creatorId: creatorId})
+  });
+}

@@ -1,11 +1,18 @@
-import { queryAllAnalysis } from '@/services/AnalysisService';
+import {
+  delAnalysisById,
+  queryAllAnalysis,
+  queryAnalysisByCreateUserId,
+} from '@/services/AnalysisService';
+import { getCurrentUser } from '@/services/UserService';
 import { SearchOutlined } from '@ant-design/icons';
 import type { InputRef, TableColumnType } from 'antd';
-import { Avatar, Button, Input, Popconfirm, Space, Table } from 'antd';
+import { Avatar, Button, Input, message, Popconfirm, Space, Table } from 'antd';
 import type { FilterDropdownProps } from 'antd/es/table/interface';
 import { useEffect, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
+import { Link } from 'react-router-dom';
 import AnalysisDetail from '../component/AnalysisDetail';
+import '../style.css';
 
 interface Item {
   userInfo: {
@@ -25,36 +32,16 @@ const AllAnalysisPage = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
   const [currentRow, setCurrentRow] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState(0);
+  const [componentDisabled, setComponentDisabled] = useState<boolean>(true);
 
-  const showModal = (index) => {
+  const showModal = (index, disable) => {
     const currentIndex = index + currentRow;
     console.log('index: ', index);
     console.log(analysisInfo[currentIndex]);
+    setComponentDisabled(disable)
     setAnalysisInfoInModal(analysisInfo[currentIndex]);
     setIsModalVisible(true);
-  };
-
-  const handlePageChange = (pagination, pageSize) => {
-    setCurrentRow((pagination - 1) * pageSize);
-    // console.log('pagination', pagination)
-    // console.log('pageSize', pageSize)
-  };
-
-  const handleOk = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    setAnalysisInfoInModal([]);
-  };
-
-  const handleDel = () => {
-    console.log('del');
-  };
-
-  const test = async () => {
-    console.log('currentPage: ', currentPage);
   };
 
   // 时间格式以及Role转中文
@@ -89,11 +76,47 @@ const AllAnalysisPage = () => {
       const analysisData = await queryAllAnalysis();
       const dataFormated = await formattedArray(analysisData);
       // console.log('dataFormated: ', dataFormated);
-      dataFormated.sort((a, b) => new Date(b.last_updated) - new Date(a.last_updated))
+      dataFormated.sort((a, b) => new Date(b.last_updated) - new Date(a.last_updated));
       setAnalysisInfo(dataFormated);
     } catch (err) {
       console.log('err in init: ', err);
     }
+  };
+
+  const handlePageChange = (pagination, pageSize) => {
+    setCurrentRow((pagination - 1) * pageSize);
+    // console.log('pagination', pagination)
+    // console.log('pageSize', pageSize)
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setAnalysisInfoInModal([]);
+  };
+
+  const handleDel = async (index) => {
+    const currentIndex = index + currentRow;
+    console.log(analysisInfo[currentIndex].analysis_id);
+    if (analysisInfo[currentIndex].analysis_id !== null) {
+      const res = await delAnalysisById(analysisInfo[currentIndex].analysis_id);
+      message[res.message === 'ok' ? 'success' : 'error'](
+        res.message === 'ok' ? '删除成功' : '删除失败',
+      );
+      initAnalysisInfo();
+    }
+    console.log('del');
+  };
+
+  const test = async () => {
+    console.log('analysisInfo: ', analysisInfo);
+    const res = await queryAnalysisByCreateUserId(18);
+    console.log('res: ', res);
+    const resAll = await queryAllAnalysis();
+    console.log('resAll: ', resAll);
   };
 
   type DataIndex = keyof Item;
@@ -106,11 +129,6 @@ const AllAnalysisPage = () => {
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
-  };
-
-  const handleReset = (clearFilters: () => void) => {
-    clearFilters();
-    setSearchText('');
   };
 
   const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<Item> => ({
@@ -149,20 +167,19 @@ const AllAnalysisPage = () => {
     filterIcon: (filtered: boolean) => (
       <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
     ),
-    onFilter: (value, record) => { 
+    onFilter: (value, record) => {
       if (dataIndex === 'userInfo') {
         return record[dataIndex].user_name
-        .toString()
-        .toLowerCase()
-        .includes((value as string).toLowerCase())
+          .toString()
+          .toLowerCase()
+          .includes((value as string).toLowerCase());
       } else {
         return record[dataIndex]
-        .toString()
-        .toLowerCase()
-        .includes((value as string).toLowerCase())
+          .toString()
+          .toLowerCase()
+          .includes((value as string).toLowerCase());
       }
-    }
-      ,
+    },
     onFilterDropdownOpenChange: (visible) => {
       if (visible) {
         setTimeout(() => searchInput.current?.select(), 100);
@@ -218,19 +235,39 @@ const AllAnalysisPage = () => {
       title: 'Action',
       key: 'action',
       width: '13%',
-      render: (_, record, index) => (
-        <Space size="middle">
-          <a onClick={() => showModal(index)}>详情</a>
-          <Popconfirm title="确定删除？" onConfirm={handleDel}>
-            <a>删除</a>
-          </Popconfirm>
-        </Space>
-      ),
+      render: (_, record, index) =>
+        record.userInfo.user_id === currentUserId ? (
+          <Space size="middle">
+            <Link to="#" onClick={() => showModal(index, false)}>
+              详情
+            </Link>
+            <Popconfirm title="确定删除？" onConfirm={() => handleDel(index)}>
+              <Link to="#">删除</Link>
+            </Popconfirm>
+          </Space>
+        ) : (
+          <Space size="middle">
+            <Link to="#" onClick={() => showModal(index, true)}>
+              详情
+            </Link>
+            <Popconfirm title="确定删除？" onConfirm={() => handleDel(index)}>
+              <Link to="#" style={{ color: 'gray', pointerEvents: 'none' }}>
+                删除
+              </Link>
+            </Popconfirm>
+          </Space>
+        ),
     },
   ];
 
+  const getCurrentUserId = async () => {
+    const { userId } = await getCurrentUser();
+    setCurrentUserId(userId);
+  };
+
   useEffect(() => {
     initAnalysisInfo();
+    getCurrentUserId();
   }, []);
 
   return (
@@ -242,15 +279,14 @@ const AllAnalysisPage = () => {
         dataSource={analysisInfo}
         pagination={{ pageSize: 10, onChange: handlePageChange }} // 如果需要分页，可以根据实际情况进行调整
       />
-      <Button onClick={test}>Test</Button>
-      {/* <Modal width='80%' title="分析详情" open={isModalVisible} onOk={handleOk} onCancel={handleCancel}> */}
+      {/* <Button onClick={test}>Test</Button> */}
       <AnalysisDetail
         initAnalysisInfo={analysisInfoInModal}
         open={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
+        componentDisabled={componentDisabled}
       />
-      {/* </Modal> */}
     </>
   );
 };

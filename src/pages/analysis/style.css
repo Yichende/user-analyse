@@ -1,0 +1,4 @@
+a.disabled-link {
+  color: gray; /* 设置颜色为灰色 */
+  pointer-events: none; /* 禁用点击事件 */
+}
