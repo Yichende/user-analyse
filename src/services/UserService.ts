@@ -7,6 +7,7 @@ export async function userLogin(values: API.LoginParams) {
     headers: {
       'Content-Type': 'application/json',
     },
+    skipErrorHandler: true,
     data: JSON.stringify(values),
   });
 }
@@ -95,5 +96,16 @@ export async function updateUserName(values: API.UserNameUpdate) {
     },
     skipErrorHandler: true,
     data: JSON.stringify(values),
+  })
+}
+
+export async function delUserByUserAccount(values) {
+  return await request('/api/delUserByUserAccount', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    skipErrorHandler: true,
+    data: JSON.stringify({account: values}),
   })
 }

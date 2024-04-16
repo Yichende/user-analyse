@@ -64,17 +64,17 @@ const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
 
   const confirmDirty = false;
 
+  // 检查密码是否匹配
   const checkedOldPassword = debounce(async (_: any, value: string, callback: any) => {
     if (!value) {
       callback(new Error('请输入原密码'));
     }
     const passwordMatch = await comparePassword(value);
     if (!passwordMatch.passwordMatch) {
-      // console.log('pwMatch: ', passwordMatch.passwordMatch);
       callback(new Error('原密码输入错误'));
     }
     callback();
-  }, 2000);
+  }, 2000);  // 2秒防抖, 防止多次请求后端
 
   const checkPassword = (_: any, value: string) => {
     const promise = Promise;
@@ -133,14 +133,16 @@ const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
     ),
     poor: (
       <div className={styles.error}>
-        <span>强度：太短</span>
+        <span>强度：弱</span>
       </div>
     ),
   };
-
   const renderPasswordProgress = () => {
+    // 获取表单内容
     const value = form.getFieldValue('newPassword');
+    // 判断密码强度
     const passwordStatus = getPasswordStatus();
+    // 密码强度显示
     return value && value.length ? (
       <div className={styles[`progress-${passwordStatus}`]}>
         <Progress

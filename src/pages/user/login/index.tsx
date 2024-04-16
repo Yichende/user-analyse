@@ -1,4 +1,5 @@
 import { Footer } from '@/components';
+import { getCurrentUser, userLogin } from '@/services/UserService';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-components';
 import { Helmet, Link, useModel } from '@umijs/max';
@@ -6,9 +7,7 @@ import { Button, message, Tabs } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { useState } from 'react';
 import { flushSync } from 'react-dom';
-import { request } from 'umi';
 import Settings from '../../../../config/defaultSettings';
-import { userLogin, getCurrentUser } from '@/services/UserService';
 
 const useStyles = createStyles(({ token }) => {
   return {
@@ -66,22 +65,28 @@ const Login: React.FC = () => {
   };
   const handleSubmit = async (values: API.LoginParams) => {
     try {
-      const response = await userLogin(values)
-      console.log('res: ', response);
+      const response = await userLogin(values); // 向后端发送登录请求
       if (response.code === 200) {
         message.success('登录成功');
-        localStorage.clear();
+        localStorage.clear(); // 清空localStorage
+        // 将后端传回的token保存在localStorage中
         localStorage.setItem('token', response.token);
-        localStorage.setItem('account', response.account)
+        localStorage.setItem('account', response.account);
+        //登录成功后获取当前用户信息并保存
         await fetchUserInfo();
+        // 登录成功后重定向到主页
         const urlParams = new URL(window.location.href).searchParams;
         window.location.href = urlParams.get('redirect') || '/';
       } else {
         message.error('Login failed');
       }
     } catch (error: any) {
-      console.error('error: ',error);
-      if (error.response.data.error === 'Invalid account or password') {
+      // console.error('error: ', error);
+      if (error.response.data.error === 'Invalid account') {
+        message.error('用户账号不存在');
+      } else if (error.response.data.error === 'Invalid password') {
+        message.error('密码错误');
+      } else {
         message.error('用户名或密码错误');
       }
     }
@@ -89,11 +94,11 @@ const Login: React.FC = () => {
 
   const testBtn = async () => {
     try {
-      const response = await getCurrentUser()
+      const response = await getCurrentUser();
       console.log('data: ', response);
       if (response) {
       } else {
-        message.error('error')
+        message.error('error');
       }
     } catch (error) {
       console.error(error);
@@ -181,20 +186,20 @@ const Login: React.FC = () => {
             <ProFormCheckbox noStyle name="autoLogin">
               自动登录
             </ProFormCheckbox>
-            <Link
+            {/* <Link
               style={{
                 float: 'right',
               }}
               to="/user/register"
             >
               新用户？点击注册
-            </Link>
+            </Link> */}
           </div>
         </LoginForm>
       </div>
-      <Button type="primary" onClick={testBtn}>
+      {/* <Button type="primary" onClick={testBtn}>
         TEST
-      </Button>
+      </Button> */}
       <Footer />
     </div>
   );

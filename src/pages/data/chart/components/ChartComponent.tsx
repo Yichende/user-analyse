@@ -124,10 +124,10 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
 
   // 若x轴为访问对象，y轴为停留时间，计算某一对象的平均停留时间
   const target_duration = async (data) => {
+    // 格式化时间
     const visitedDataFormat = await formattedArray(data);
-    // console.log('visitedDataFormat: ', visitedDataFormat);
+    // 计算平均停留时间
     const visitedDataReduce = await aggregatedDurationDataForTarget(visitedDataFormat);
-    // console.log('visitedDataReduce: ', visitedDataReduce);
     setTarget_duration_visitedBehavior(visitedDataReduce);
   };
 
@@ -187,7 +187,6 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
   const handleConfirm = () => {
     // 在这里处理选中的图表
     // 可以将选中的图表传递给另一个页面，例如使用路由参数
-    // history.push(`/selected-charts?charts=${selectedCharts.join(',')}`);
     history.push({
       pathname: `/analysis/analysis_add?chartId=${selectedCharts.join(',')}`,
     });
@@ -203,16 +202,17 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
       <Button type="primary" onClick={testClick}>
         TEST
       </Button>
-      <Button onClick={handleButtonClick}>
+      <Button onClick={handleButtonClick}>  
+        {/* 是否显示可选框 */}
         {showCheckboxes ? 'Hide Checkboxes' : 'Show Checkboxes'}
       </Button>
       {showCheckboxes && <Button onClick={handleConfirm}>Confirm</Button>}
-      {currentCards.map((card, index) => (
+      {currentCards.map((card, index) => (  // 渲染图表
         <Card
           key={index}
           title={card.chart_name}
           style={{ width: 700, marginTop: 30 }}
-          actions={[
+          actions={[  // 选项
             <div key="setting">
               <SettingOutlined />
               <span style={{ marginLeft: 5 }}>设置</span>
@@ -227,7 +227,7 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
               <span style={{ marginLeft: 5 }}>更多</span>
             </Popover>,
           ]}
-          extra={
+          extra={  // 若显示可选框则展示
             showCheckboxes && (
               <>
                 <Checkbox

@@ -13,9 +13,6 @@ const Dashboard = () => {
   const { styles } = useStyles();
   const [loading, setLoading] = useState(false);
   // 模拟数据
-  const totalUsers = 1500;
-  const totalData = '1.5 TB';
-  const newUsersToday = 80;
   const chartData = [
     { type: '柱状图', count: 45 },
     { type: '折线图', count: 34 },
@@ -38,6 +35,17 @@ const Dashboard = () => {
       y: fakeY[i],
     });
   }
+
+  const userTrendData =[
+    { type: '购买', value: 20 },
+    { type: '浏览', value: 30 },
+    { type: '搜索', value: 25 },
+    { type: '互动', value: 15 },
+    { type: '评论', value: 10 },
+  ]
+
+  const dateVisited = numeral(2834).format('0,0');
+  const totalVisited = numeral(83129).format('0,0');
 
   return (
     <div style={{ padding: '20px' }}>
@@ -123,8 +131,8 @@ const Dashboard = () => {
                 <InfoCircleOutlined />
               </Tooltip>
             }
-            total={numeral(8846).format('0,0')}
-            footer={<Field label="日访问量" value={numeral(1234).format('0,0')} />}
+            total={totalVisited}
+            footer={<Field label="日访问量" value={dateVisited} />}
             contentHeight={46}
           >
             <Area
@@ -148,13 +156,7 @@ const Dashboard = () => {
         <Col span={12}>
           <Card title="最近用户行为趋势">
             <Pie
-              data={[
-                { type: '购买', value: 20 },
-                { type: '浏览', value: 30 },
-                { type: '搜索', value: 25 },
-                { type: '互动', value: 15 },
-                { type: '评论', value: 10 },
-              ]}
+              data={userTrendData}
               angleField="value"
               colorField="type"
               radius={0.8}

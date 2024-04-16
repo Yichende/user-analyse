@@ -44,3 +44,13 @@ export async function queryInteractBehavior() {
     },
   });
 }
+
+export async function delBehaviorById(table_name, behavior_id) {
+  return await request('/api/delBehaviorById', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: JSON.stringify({table_name, behavior_id})
+  });
+}

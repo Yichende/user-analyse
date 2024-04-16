@@ -1,4 +1,4 @@
-import { queryVisitedBehavior } from '@/services/BehaviorService';
+import { delBehaviorById, queryVisitedBehavior } from '@/services/BehaviorService';
 import { updateUser } from '@/services/UserService';
 import { SearchOutlined } from '@ant-design/icons';
 import type { GetRef, TableColumnType } from 'antd';
@@ -21,7 +21,8 @@ import Highlighter from 'react-highlight-words';
 type InputRef = GetRef<typeof Input>;
 
 interface Item {
-  user_id: string;
+  behavior_id: number,
+  user_id: number;
   visited_time: string;
   visited_target: string;
   duration_minutes: number;
@@ -50,15 +51,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
   dataIndex,
   title,
   inputType,
-  // record,
-  // index,
   children,
   ...restProps
 }) => {
+  // 判断输入类型
   const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
-
   return (
     <td {...restProps}>
+      {/* 若为编辑状态则返回表单编辑内容 */}
       {editing ? (
         <Form.Item
           name={dataIndex}
@@ -87,11 +87,12 @@ const VisitedTable: React.FC = () => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef<InputRef>(null);
 
-  const isEditing = (record: Item) => record.user_id === editingKey;
+  const isEditing = (record: Item) => record.behavior_id+'' === editingKey;
 
   const edit = (record: Partial<Item>) => {
     form.setFieldsValue({ VisitedTarget: '', duration_minutes: '', ...record });
-    setEditingKey(record.user_id);
+    setEditingKey(record.behavior_id+'');
+    // console.log('record: ', record)
   };
 
   const cancel = () => {
@@ -206,9 +207,8 @@ const VisitedTable: React.FC = () => {
       ),
   });
 
-  // 时间格式
+  // 时间格式处理
   const formattedArray = (value: any) => {
-    // const id = value.behavior_id;
     const newArr = value.map(function (arr) {
       const date = new Date(arr.visited_time);
       const formattedDate =
@@ -241,10 +241,22 @@ const VisitedTable: React.FC = () => {
       console.log(error);
     }
   };
+ 
+  const delData = async(record) => {
+    try {
+      await delBehaviorById('visited_behavior', record.behavior_id)
+      message.success('删除成功');
+      initVisitedInfo();
+    } catch(err) {
+      message.error('删除失败')
+    }
+    
+  }
 
   useEffect(() => {
     initVisitedInfo();
   }, []);
+
 
   const columns = [
     {
@@ -289,9 +301,14 @@ const VisitedTable: React.FC = () => {
             </Popconfirm>
           </span>
         ) : (
+          <Space>
           <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
             编辑
           </Typography.Link>
+          <Popconfirm onConfirm={() => delData(record)} title='确定删除？'>
+            <a>删除</a>
+          </Popconfirm>
+        </Space>
         );
       },
     },

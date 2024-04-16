@@ -94,7 +94,7 @@
       },
     ],
   },
-  { path: '/test', name: '测试页面', icon: 'pieChart', component: './test-page' },
+  // { path: '/test', name: '测试页面', icon: 'pieChart', component: './test-page' },
   { path: '/', redirect: '/dashboard/analysis' },
   { component: '404', path: '/*' },
 ];

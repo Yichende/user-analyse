@@ -44,12 +44,12 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
   };
 
   const handleNext = () => {
-    if (step === 1) {
-      // 此处可以添加表单验证逻辑
+    if (step === 1) { // 判断当前步骤
       form
         .validateFields()
         .then((values) => {
           let breadCrumb = '';
+          // 判断所选数据源
           switch (values.dataSource) {
             case 'visited_behavior':
               breadCrumb = '浏览行为表';
@@ -67,7 +67,8 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
               breadCrumb = '互动行为表';
               break;
           }
-          setBreadCrumbItems({ title: breadCrumb });
+          // 更改当前面包屑显示
+          setBreadCrumbItems({ title: breadCrumb });  
           setStep(2);
           setModalTitle('请完善以下内容');
         })
@@ -78,19 +79,16 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
       form
         .validateFields()
         .then((values) => {
-          console.log('FormINFO: ', form.getFieldsValue());
-          form.resetFields();
-          console.log('data: ', { ...values, xAxis, yAxis });
+          form.resetFields();  // 重置表单
+          // 将表单内容传回父组件后提交至后端
           onCreate({ ...values, xAxis, yAxis });
           message.success('表单提交成功！');
           setStep(1);
           setXAxis({ value: '' });
           setYAxis({ value: '' });
-          form.resetFields();
-          closeModal();
+          closeModal();  // 关闭弹窗
         })
         .catch((err) => {
-          // console.error('Validation failed:', err);
           message.error('请完善表单');
         });
     }

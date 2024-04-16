@@ -40,6 +40,7 @@ const BaseView: React.FC = () => {
   };
 
   useEffect(() => {
+    // 获取当前用户信息
     getCurrentUser()
       .then((data) => {
         // 初始化表单
@@ -57,11 +58,14 @@ const BaseView: React.FC = () => {
     const url = 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png';
     return initialUserInfo.avatar ? initialUserInfo.avatar : url;
   };
+
   const handleFinish = async () => {
+    // 获取表单内容
     const username = form.getFieldValue('username')
     const account = form.getFieldValue('account')
     const values = {username, account}
     try {
+      // 更新用户信息
       const res  = await updateUserName(values)
       if (res.message === 'success') {
         message.success('更新基本信息成功');

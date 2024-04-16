@@ -1,4 +1,4 @@
-import { queryUsersByPage, updateUser } from '@/services/UserService';
+import { delUserByUserAccount, queryUsersByPage, updateUser } from '@/services/UserService';
 import { SearchOutlined } from '@ant-design/icons';
 import type { GetRef, TableColumnType } from 'antd';
 import {
@@ -121,10 +121,10 @@ const UserManagementPage: React.FC = () => {
   const save = async (user_id: number) => {
     try {
       const row = (await form.validateFields()) as updateItem;
-
       const newData = [...users];
+      // 获取当前表格行下标
       const index = newData.findIndex((item) => user_id === item.user_id);
-      console.log('SAVVEE INDEX: ', index);
+      console.log('SAVE INDEX: ', index);
       if (index > -1) {
         // item 为当前用户数据，row为更新后当前表单数据
         const item = newData[index];
@@ -132,8 +132,6 @@ const UserManagementPage: React.FC = () => {
           ...item,
           ...row,
         });
-        // console.log('IITTMTMT: ', user_id);
-        // console.log('RRRR: ', row);
         const userUpdateData = { user_id: user_id, ...row };
         // 后台数据传row和item.user_id
         const updated = await updateUser(userUpdateData);
@@ -141,8 +139,8 @@ const UserManagementPage: React.FC = () => {
         if (updated.message === 'success') {
           message.success('更改成功');
         }
-
         setUsers(newData);
+        //将key置空,editingKey表示正在修改的行
         setEditingKey('');
       } else {
         newData.push(row);
@@ -172,7 +170,7 @@ const UserManagementPage: React.FC = () => {
   const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<Item> => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-        <Input
+        <Input // 获取输入的筛选词句
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
@@ -273,6 +271,17 @@ const UserManagementPage: React.FC = () => {
     }
   };
 
+  const delUser = async(record) => {
+    // console.log('record', record.account)
+    try {
+      await delUserByUserAccount(record.account);
+      message.success('删除成功')
+      initUserInfo()
+    } catch(err) {
+      message.error('删除失败')
+    }
+  }
+
   useEffect(() => {
     initUserInfo();
   }, []);
@@ -344,9 +353,15 @@ const UserManagementPage: React.FC = () => {
             </Popconfirm>
           </span>
         ) : (
-          <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
-            编辑
-          </Typography.Link>
+          
+          <Space>
+            <Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
+              编辑
+            </Typography.Link>
+            <Popconfirm onConfirm={() => delUser(record)} title='确定删除？'>
+              <a>删除</a>
+            </Popconfirm>
+          </Space>
         );
       },
     },
@@ -391,15 +406,11 @@ const UserManagementPage: React.FC = () => {
   return (
     <Flex gap="middle" vertical>
       <Flex justify={'flex-end'}>
-        <Button
-          type="primary"
-          onClick={showModal}
-          style={{ width: '10%', minWidth: '90px' }}
-        >
+        <Button type="primary" onClick={showModal} style={{ width: '10%', minWidth: '90px' }}>
           新增用户
         </Button>
       </Flex>
-      <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+      <Modal title="新增用户" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
         <CreateUser ref={childRef} />
       </Modal>
       <Form form={form} component={false}>

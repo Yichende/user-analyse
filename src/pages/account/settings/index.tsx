@@ -11,13 +11,13 @@ type SettingsState = {
 };
 const Settings: React.FC = () => {
   const { styles } = useStyles();
+  // 左侧菜单栏设置
   const menuMap: Record<string, React.ReactNode> = {
     base: '基本设置',
     security: '安全设置',
-    // binding: '账号绑定',
-    // notification: '新消息通知',
   };
   const [initConfig, setInitConfig] = useState<SettingsState>({
+    // 初始信息展示
     mode: 'inline',
     selectKey: 'base',
   });
