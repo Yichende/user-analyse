@@ -2,22 +2,25 @@ import { queryVisitedBehavior } from '@/services/BehaviorService';
 import { delChartByChartId } from '@/services/ChartService';
 import { DeleteOutlined, EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
 import { Column, Line, Scatter } from '@ant-design/plots';
-import { Avatar, Button, Card, Checkbox, message, Popover } from 'antd';
-import { useEffect, useState } from 'react';
 import { history } from '@umijs/max';
+import { Avatar, Button, Card, Checkbox, message, Popover, Space, Form } from 'antd';
+import { useEffect, useState } from 'react';
+import EditChartForm from './EditChartForm';
+import { getCurrentUser } from '@/services/UserService';
 
 const { Meta } = Card;
 
-const ChartComponent = ({ initChartInfo, currentCards }) => {
+const ChartComponent = ({ showModal, initChartInfo, currentCards }) => {
+  const [form] = Form.useForm();
   const [target_duration_visitedBehavior, setTarget_duration_visitedBehavior] = useState([]);
   const [time_duration_visitedBehavior, setTime_duration_visitedBehavior] = useState([]);
   const [time_target_visitedBehavior, setTime_target_visitedBehavior] = useState([]);
   // const history = useHistory();
   const [showCheckboxes, setShowCheckboxes] = useState(false);
   const [selectedCharts, setSelectedCharts] = useState([]);
-  // target_duration
-
-  // console.log('someInfo: ', currentCards);
+  const [visible, setVisible] = useState(false);
+  const [cardInfo, setCardInfo] =useState({})
+  const [currentUserId, setCurrentUserId] = useState()
 
   // 年月日时分秒
   const formattedTime = (time: string) => {
@@ -139,9 +142,14 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
     await time_target(visitedData.data);
   };
 
+  const initCurrentUser = async () => {
+    const userInfo = await getCurrentUser()
+    setCurrentUserId(userInfo.userId);
+  }
+
   useEffect(() => {
-    console.log('EEEFFFECT  ');
     initChartData();
+    initCurrentUser();
   }, []);
 
   const selectData = (xField, yField) => {
@@ -163,6 +171,10 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
     await initChartInfo();
   };
 
+  const showEditModal = () => {
+    setVisible(true);
+  };
+
   const moreOption = (chartId) => (
     <div>
       <Button onClick={() => delChart(chartId)} type="text" danger icon={<DeleteOutlined />}>
@@ -181,7 +193,7 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
 
   const handleButtonClick = () => {
     setShowCheckboxes(!showCheckboxes);
-    setSelectedCharts([])
+    setSelectedCharts([]);
   };
 
   const handleConfirm = () => {
@@ -197,103 +209,135 @@ const ChartComponent = ({ initChartInfo, currentCards }) => {
     console.log('currentCards: ', currentCards);
   };
 
+  const edit = (index, card) => {
+    showEditModal();
+    console.log('card: ', card)
+    setCardInfo(currentCards[index])
+    const formInfo = currentCards[index]
+    console.log('currentCard: ',formInfo)
+    console.log('testin edit: ', formInfo)
+    form.setFieldsValue({
+      chartName: formInfo.chart_name,
+      chartType: formInfo.chart_type,
+      xAxis: JSON.parse(formInfo.chart_config)['xField'],
+      yAxis: JSON.parse(formInfo.chart_config)['yField'],
+    });
+  };
+
+  const handleCancel = () => {
+    setVisible(false);
+  };
+
   return (
     <>
-      <Button type="primary" onClick={testClick}>
+      {/* <Button type="primary" onClick={testClick}>
         TEST
-      </Button>
-      <Button onClick={handleButtonClick}>  
-        {/* 是否显示可选框 */}
-        {showCheckboxes ? 'Hide Checkboxes' : 'Show Checkboxes'}
-      </Button>
-      {showCheckboxes && <Button onClick={handleConfirm}>Confirm</Button>}
-      {currentCards.map((card, index) => (  // 渲染图表
-        <Card
-          key={index}
-          title={card.chart_name}
-          style={{ width: 700, marginTop: 30 }}
-          actions={[  // 选项
-            <div key="setting">
-              <SettingOutlined />
-              <span style={{ marginLeft: 5 }}>设置</span>
-            </div>,
-            <div key="edit">
-              <EditOutlined />
-              <span style={{ marginLeft: 5 }}>编辑</span>
-            </div>,
+      </Button> */}
+      <Space>
+        <Button type="primary" onClick={showModal}>
+          创建图表
+        </Button>
+        <Button onClick={handleButtonClick}>
+          {/* 是否显示可选框 */}
+          {showCheckboxes ? '返回' : '选择图表分析'}
+        </Button>
+        {showCheckboxes && <Button onClick={handleConfirm}>确认选中图表</Button>}
+      </Space>
+      {currentCards.map(
+        (
+          card,
+          index, // 渲染图表
+        ) => (
+          <Card
+            key={index}
+            title={card.chart_name}
+            style={{ width: 700, marginTop: 30 }}
+            actions={[
+              // 选项
+              <div key="setting">
+                <SettingOutlined />
+                <span style={{ marginLeft: 5 }}>设置</span>
+              </div>,
+              <div key="edit" onClick={() => card.create_user_id !== currentUserId  ? message.warning('没有编辑此图表的权限') : edit(index, card)}>
+                <EditOutlined />
+                <span style={{ marginLeft: 5 }}>编辑</span>
+              </div>,
 
-            <Popover content={moreOption(card.chart_id)} trigger="click" key="ellipsis">
-              <EllipsisOutlined />
-              <span style={{ marginLeft: 5 }}>更多</span>
-            </Popover>,
-          ]}
-          extra={  // 若显示可选框则展示
-            showCheckboxes && (
-              <>
-                <Checkbox
-                  onChange={() => handleCheckboxChange(card.chart_id)}
-                  checked={selectedCharts.includes(card.chart_id)}
-                />
-                <span style={{marginLeft: 5}}>选择</span>
-              </>
-            )
-          }
-        >
-          {card.chart_type === 'Line' && (
-            <Line
-              data={selectData(
-                JSON.parse(card.chart_config)['xField'],
-                JSON.parse(card.chart_config)['yField'],
-              )}
-              xField={JSON.parse(card.chart_config)['xField']}
-              yField={JSON.parse(card.chart_config)['yField']}
-              slider={{
-                x: true,
-                start: 0, // 设置起始位置
-                end: 1, // 设置结束位置
-              }}
-              height={400}
+              <Popover content={moreOption(card.chart_id)} trigger="click" key="more">
+                <EllipsisOutlined />
+                <span style={{ marginLeft: 5 }}>更多</span>
+              </Popover>,
+            ]}
+            extra={
+              // 若显示可选框则展示
+              showCheckboxes && (
+                <>
+                  <Checkbox
+                    onChange={() => handleCheckboxChange(card.chart_id)}
+                    checked={selectedCharts.includes(card.chart_id)}
+                  />
+                  <span style={{ marginLeft: 5 }}>选择</span>
+                </>
+              )
+            }
+          >
+            {card.chart_type === 'Line' && (
+              <Line
+                data={selectData(
+                  JSON.parse(card.chart_config)['xField'],
+                  JSON.parse(card.chart_config)['yField'],
+                )}
+                xField={JSON.parse(card.chart_config)['xField']}
+                yField={JSON.parse(card.chart_config)['yField']}
+                slider={{
+                  x: true,
+                  start: 0, // 设置起始位置
+                  end: 1, // 设置结束位置
+                }}
+                height={400}
+              />
+            )}
+            {card.chart_type === 'Column' && (
+              <Column
+                data={selectData(
+                  JSON.parse(card.chart_config)['xField'],
+                  JSON.parse(card.chart_config)['yField'],
+                )}
+                xField={JSON.parse(card.chart_config)['xField']}
+                yField={JSON.parse(card.chart_config)['yField']}
+                slider={{
+                  x: true,
+                  start: 0, // 设置起始位置
+                  end: 1, // 设置结束位置
+                }}
+                height={400}
+              />
+            )}
+            {card.chart_type === 'Scatter' && (
+              <Scatter
+                data={selectData(
+                  JSON.parse(card.chart_config)['xField'],
+                  JSON.parse(card.chart_config)['yField'],
+                )}
+                xField={JSON.parse(card.chart_config)['xField']}
+                yField={JSON.parse(card.chart_config)['yField']}
+                slider={{
+                  x: true,
+                  start: 0, // 设置起始位置
+                  end: 1, // 设置结束位置
+                }}
+                height={400}
+              />
+            )}
+            <Meta
+              avatar={<Avatar src={card.avatar} />}
+              title={card.username}
+              description={`最后更新时间：${formattedTime(card.last_updated)}`}
             />
-          )}
-          {card.chart_type === 'Column' && (
-            <Column
-              data={selectData(
-                JSON.parse(card.chart_config)['xField'],
-                JSON.parse(card.chart_config)['yField'],
-              )}
-              xField={JSON.parse(card.chart_config)['xField']}
-              yField={JSON.parse(card.chart_config)['yField']}
-              slider={{
-                x: true,
-                start: 0, // 设置起始位置
-                end: 1, // 设置结束位置
-              }}
-              height={400}
-            />
-          )}
-          {card.chart_type === 'Scatter' && (
-            <Scatter
-              data={selectData(
-                JSON.parse(card.chart_config)['xField'],
-                JSON.parse(card.chart_config)['yField'],
-              )}
-              xField={JSON.parse(card.chart_config)['xField']}
-              yField={JSON.parse(card.chart_config)['yField']}
-              slider={{
-                x: true,
-                start: 0, // 设置起始位置
-                end: 1, // 设置结束位置
-              }}
-              height={400}
-            />
-          )}
-          <Meta
-            avatar={<Avatar src={card.avatar} />}
-            title={card.username}
-            description={`最后更新时间：${formattedTime(card.last_updated)}`}
-          />
-        </Card>
-      ))}
+          </Card>
+        ),
+      )}
+      <EditChartForm visible={visible} onCancel={handleCancel} cardInfo={cardInfo} form={form} initChartInfo={initChartInfo} />
     </>
   );
 };

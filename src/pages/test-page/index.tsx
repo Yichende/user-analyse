@@ -7,6 +7,7 @@ import { insertRandomSearchData } from './util/SearchBehaviorMock';
 import { insertRandomCommentData } from './util/CommentBehaviorMock';
 import { insertRandomSocialInteractData } from './util/InteractBehaviorMock';
 import { insertRandomChartData } from './util/ChartMock';
+import { getServerStatus } from '@/services/ServerService';
 
 const TestPage = () => {
   // 生成随机邮箱
@@ -83,7 +84,11 @@ const TestPage = () => {
       console.log('ERROR:::: ', error);
     }
   };
-
+  
+  const getStatus = async () => {
+    const res = await getServerStatus()
+    console.log('res: ', res)
+  }
   return (
     <>
       <Divider orientation="left" plain>
@@ -114,6 +119,9 @@ const TestPage = () => {
         </Button>
         <Button type="primary" onClick={insertRandomChartData}>
           创建十张图表
+        </Button>
+        <Button type="primary" onClick={getStatus}>
+          获取服务器信息
         </Button>
       </Flex>
     </>

@@ -1,4 +1,4 @@
-import { getAllChart } from '@/services/ChartService';
+import { addNewChart, getAllChart } from '@/services/ChartService';
 import { Button, Pagination } from 'antd';
 import { useEffect, useState } from 'react';
 import ChartComponent from './components/ChartComponent';
@@ -9,29 +9,6 @@ const ChartPage = () => {
   // const [chartData, setChartData] = useState(null);
   const [chartInfo, setChartInfo] = useState([]);
   const [currentCards, setCurrentCards] = useState([]);
-
-  // 填完表单后发送请求给后端拿数据
-  const handleCreate = (values) => {
-    setVisible(false);
-  };
-
-  const showModal = () => {
-    setVisible(true);
-  };
-
-  const closeModal = () => {
-    setVisible(false);
-  };
-
-  const handleCancel = () => {
-    setVisible(false);
-  };
-
-  const handleTest = async () => {
-    // const visitedData = await queryVisitedBehavior();
-    // console.log('VIsitedData: ', visitedData);
-    console.log('chartInfo: ', chartInfo);
-  };
 
   // 当前页码
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,14 +31,48 @@ const ChartPage = () => {
   };
 
   const initChartData = async () => {
-    console.log('initChartData in parent');
     const chart = await getAllChart();
     const chartInfo = chart.chartInfo;
-
     // 更改显示顺序
     chartInfo.sort((a, b) => new Date(b.last_updated) - new Date(a.last_updated));
     setChartInfo(chartInfo);
     setCurrentCards(chartInfo.slice(startIndex, endIndex));
+  };
+
+  // 填完表单后发送请求给后端拿数据
+  const handleCreate = async (values) => {
+    setVisible(false);
+    const chartInfo = {
+      chart_type: values.chartType,
+      chart_name: values.chartName,
+      chart_config: {
+        xField: values.xAxis.value,
+        yField: values.yAxis.value,
+      },
+      data_table_name: values.data_table_name,
+      create_user_id: values.create_user_id,
+    }
+    // console.log('chartINfo: ', chartInfo)  
+    await addNewChart(chartInfo);
+    await initChartData();
+  };
+
+  const showModal = () => {
+    setVisible(true);
+  };
+
+  const closeModal = () => {
+    setVisible(false);
+  };
+
+  const handleCancel = () => {
+    setVisible(false);
+  };
+
+  const handleTest = async () => {
+    // const visitedData = await queryVisitedBehavior();
+    // console.log('VIsitedData: ', visitedData);
+    console.log('chartInfo: ', chartInfo);
   };
 
   useEffect(() => {
@@ -70,12 +81,12 @@ const ChartPage = () => {
 
   return (
     <div>
-      <Button type="primary" onClick={showModal}>
+      {/* <Button type="primary" onClick={showModal}>
         New Chart
-      </Button>
-      <Button key="test" type="primary" onClick={handleTest}>
+      </Button> */}
+      {/* <Button key="test" type="primary" onClick={handleTest}>
         测试
-      </Button>
+      </Button> */}
       <ChartForm
         visible={visible}
         onCreate={handleCreate}
@@ -83,7 +94,7 @@ const ChartPage = () => {
         closeModal={closeModal}
       />
       <div>
-        <ChartComponent initChartInfo={initChartData} currentCards={currentCards} />
+        <ChartComponent showModal={showModal} initChartInfo={initChartData} currentCards={currentCards} />
         {/* 分页器组件 */}
         <Pagination
           style={{ marginTop: '20px', textAlign: 'center' }}

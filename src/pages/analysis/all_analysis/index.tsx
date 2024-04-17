@@ -286,6 +286,7 @@ const AllAnalysisPage = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         componentDisabled={componentDisabled}
+        loadAnalysisInfo={initAnalysisInfo}
       />
     </>
   );

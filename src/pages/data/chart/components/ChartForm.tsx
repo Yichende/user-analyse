@@ -81,7 +81,7 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
         .then((values) => {
           form.resetFields();  // 重置表单
           // 将表单内容传回父组件后提交至后端
-          onCreate({ ...values, xAxis, yAxis });
+          onCreate({ ...values, data_table_name: dataSource, xAxis, yAxis, create_user_id: currentUserId });
           message.success('表单提交成功！');
           setStep(1);
           setXAxis({ value: '' });
@@ -127,19 +127,7 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
     setFormData({ ...value });
     console.log('Formdataaa: ', formData);
     await addNewChart(formData);
-    // setTimeout(async () => {
-    //   await addNewChart(formData);
-    // }, 1000);
-    // setTimeout(() => {
-    //   setFormData({});
-    // }, 1000);
   };
-
-  const sendChartData = async () => {
-    // console.log('send')
-    await addNewChart(formData);
-    // console.log('after send', formData)
-  }
 
   useEffect(() => {
     getCurrentUser().then((userInfo) => {
@@ -147,14 +135,6 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
       setCurrentUserId(userInfo.userId);
     });
   }, []);
-
-  useMemo(() => {
-    console.log('Formdata in memo: ', formData);
-    if (Object.entries(formData).length !== 0 ) {
-      console.log('sendChartData')
-      // sendChartData()
-    }
-  }, [formData])
 
   return (
     <Modal
@@ -170,9 +150,9 @@ const ChartForm = ({ visible, onCreate, onCancel, closeModal }) => {
         <Button key="next" type="primary" onClick={handleNext}>
           {step === 1 ? '下一步' : '完成'}
         </Button>,
-        <Button key="test" type="primary" onClick={handleTest}>
-          测试
-        </Button>,
+        // <Button key="test" type="primary" onClick={handleTest}>
+        //   测试
+        // </Button>,
       ]}
     >
       {step === 1 ? (

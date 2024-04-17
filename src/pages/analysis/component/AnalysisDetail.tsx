@@ -1,4 +1,3 @@
-import { addAnalysis } from '@/services/AnalysisService';
 import { getChartsByChartId } from '@/services/ChartService';
 import { getCurrentUser } from '@/services/UserService';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
@@ -17,8 +16,9 @@ import {
 } from 'antd';
 import { useEffect, useState } from 'react';
 import ChartComponent from '../component/ChartComponent';
+import { updateAnalysisById } from '@/services/AnalysisService';
 
-const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel, componentDisabled }) => {
+const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel, componentDisabled, loadAnalysisInfo }) => {
   const [currentChart, setCurrentChart] = useState(0);
   const [currentCards, setCurrentCards] = useState([]);
   const [currentUserId, setCurrentUserId] = useState(0);
@@ -31,19 +31,6 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel, componentDisab
 
   const handlePrev = () => {
     setCurrentChart((prev) => (prev - 1 + 2) % 2);
-  };
-
-  const onFinish = async (values) => {
-    console.log('Received values:', values);
-    const analysisInfo = {
-      analysis_name: values.analysis_name,
-      analysis_description: values.analysis_description,
-      create_user_id: currentUserId,
-      chart_id: initAnalysisInfo.chart_id,
-    };
-    console.log('analysisInfo: ', analysisInfo);
-    await addAnalysis(analysisInfo);
-    message.success('提交成功');
   };
 
   const [form] = Form.useForm();
@@ -69,6 +56,18 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel, componentDisab
     }
   };
 
+  const onFinish = async (values) => {
+    const analysisInfo = {
+      analysis_id: initAnalysisInfo.analysis_id,
+      analysis_name: values.analysis_name,
+      analysis_description: values.analysis_description,
+    };
+    const res = await updateAnalysisById(analysisInfo)
+    console.log('res: ', res)
+    await loadAnalysisInfo();
+    message.success('更改成功');
+  };
+
   useEffect(() => {
     if (initAnalysisInfo.chart_id) {
       initChartInfo();
@@ -82,9 +81,20 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel, componentDisab
   };
 
   return (
-    <Modal width="80%" title="分析详情" open={open} onOk={onOk} onCancel={onCancel}>
+    <Modal
+      width="80%"
+      title="分析详情"
+      open={open}
+      onOk={onOk}
+      onCancel={onCancel}
+      footer={
+        <Button key="back" onClick={onCancel}>
+          返回
+        </Button>
+      }
+    >
       <Row gutter={[16, 16]}>
-        <Col span={12}>
+        <Col span={14}>
           <Carousel
             arrows={true}
             nextArrow={<RightOutlined onClick={handleNext} />}
@@ -102,7 +112,7 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel, componentDisab
             )}
           </Carousel>
         </Col>
-        <Col span={12}>
+        <Col span={10}>
           <Card title="分析">
             <Form form={form} disabled={componentDisabled} layout="vertical" onFinish={onFinish}>
               <Form.Item
@@ -122,7 +132,7 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel, componentDisab
               <Divider />
               <Form.Item>
                 <Button type="primary" htmlType="submit">
-                  提交
+                  更改
                 </Button>
               </Form.Item>
             </Form>

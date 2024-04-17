@@ -35,7 +35,6 @@ export async function delAnalysisById(analysisId: number) {
 }
 
 export async function queryAnalysisByCreateUserId(creatorId: number) {
-  console.log('creatorId: ', creatorId )
   return await request('/api/queryAnalysisByCreateUserId', {
     method: 'POST',
     headers: {
@@ -43,5 +42,16 @@ export async function queryAnalysisByCreateUserId(creatorId: number) {
     },
     skipErrorHandler: true, // 跳过错误处理
     data: JSON.stringify({creatorId: creatorId})
+  });
+}
+
+export async function updateAnalysisById(values) {
+  return await request('/api/updateAnalysisById', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    skipErrorHandler: true, // 跳过错误处理
+    data: JSON.stringify(values)
   });
 }

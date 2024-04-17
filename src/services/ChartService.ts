@@ -42,3 +42,14 @@ export async function getChartsByChartId(chartId: string) {
     params: {chartId: chartId},
   });
 }
+
+export async function updatedChartById(values) {
+  return await request('/api/updatedChartById', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    skipErrorHandler: true,
+    data: JSON.stringify(values),
+  });
+}
