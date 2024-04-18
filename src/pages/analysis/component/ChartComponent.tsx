@@ -1,8 +1,8 @@
 import { queryVisitedBehavior } from '@/services/BehaviorService';
 import { Column, Line, Scatter } from '@ant-design/plots';
+import { history } from '@umijs/max';
 import { Card } from 'antd';
 import { useEffect, useState } from 'react';
-import { history } from '@umijs/max';
 
 const ChartComponent = ({ card }) => {
   const [target_duration_visitedBehavior, setTarget_duration_visitedBehavior] = useState([]);
@@ -125,70 +125,58 @@ const ChartComponent = ({ card }) => {
     await time_target(visitedData.data);
   };
 
-
   const toAddChart = () => {
     history.push({
       pathname: `/data/chart`,
     });
-  }
+  };
 
   useEffect(() => {
     initChartData();
   }, []);
 
   return (
-    <div>
-      <Card title={chart_name}>
-        {chart_type === 'Line' && (
-          <Line
-            data={selectData(
-              JSON.parse(chart_config)['xField'],
-              JSON.parse(chart_config)['yField'],
-            )}
-            xField={JSON.parse(chart_config)['xField']}
-            yField={JSON.parse(chart_config)['yField']}
-            slider={{
-              x: true,
-              start: 0, // 设置起始位置
-              end: 1, // 设置结束位置
-            }}
-            height={400}
-          />
-        )}
-        {chart_type === 'Column' && (
-          <Column
-            data={selectData(
-              JSON.parse(chart_config)['xField'],
-              JSON.parse(chart_config)['yField'],
-            )}
-            xField={JSON.parse(chart_config)['xField']}
-            yField={JSON.parse(chart_config)['yField']}
-            slider={{
-              x: true,
-              start: 0, // 设置起始位置
-              end: 1, // 设置结束位置
-            }}
-            height={400}
-          />
-        )}
-        {chart_type === 'Scatter' && (
-          <Scatter
-            data={selectData(
-              JSON.parse(chart_config)['xField'],
-              JSON.parse(chart_config)['yField'],
-            )}
-            xField={JSON.parse(chart_config)['xField']}
-            yField={JSON.parse(chart_config)['yField']}
-            slider={{
-              x: true,
-              start: 0, // 设置起始位置
-              end: 1, // 设置结束位置
-            }}
-            height={400}
-          />
-        )}
-      </Card>
-    </div>
+    <Card title={chart_name}> 
+      {chart_type === 'Line' && (
+        <Line
+          data={selectData(JSON.parse(chart_config)['xField'], JSON.parse(chart_config)['yField'])}
+          xField={JSON.parse(chart_config)['xField']}
+          yField={JSON.parse(chart_config)['yField']}
+          slider={{
+            x: true,
+            start: 0, // 设置起始位置
+            end: 1, // 设置结束位置
+          }}
+          height={400}
+        />
+      )}
+      {chart_type === 'Column' && (
+        <Column
+          data={selectData(JSON.parse(chart_config)['xField'], JSON.parse(chart_config)['yField'])}
+          xField={JSON.parse(chart_config)['xField']}
+          yField={JSON.parse(chart_config)['yField']}
+          slider={{
+            x: true,
+            start: 0, // 设置起始位置
+            end: 1, // 设置结束位置
+          }}
+          height={400}
+        />
+      )}
+      {chart_type === 'Scatter' && (
+        <Scatter
+          data={selectData(JSON.parse(chart_config)['xField'], JSON.parse(chart_config)['yField'])}
+          xField={JSON.parse(chart_config)['xField']}
+          yField={JSON.parse(chart_config)['yField']}
+          slider={{
+            x: true,
+            start: 0, // 设置起始位置
+            end: 1, // 设置结束位置
+          }}
+          height={400}
+        />
+      )}
+    </Card>
   );
 };
 

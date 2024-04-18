@@ -138,7 +138,7 @@ const AnalysisDetail = ({ initAnalysisInfo, open, onOk, onCancel, componentDisab
             </Form>
           </Card>
         </Col>
-        <Button onClick={test}>Test</Button>
+        {/* <Button onClick={test}>Test</Button> */}
       </Row>
     </Modal>
   );

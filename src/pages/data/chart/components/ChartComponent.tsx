@@ -1,12 +1,13 @@
 import { queryVisitedBehavior } from '@/services/BehaviorService';
 import { delChartByChartId } from '@/services/ChartService';
-import { DeleteOutlined, EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EllipsisOutlined, SettingOutlined, UploadOutlined } from '@ant-design/icons';
 import { Column, Line, Scatter } from '@ant-design/plots';
 import { history } from '@umijs/max';
 import { Avatar, Button, Card, Checkbox, message, Popover, Space, Form } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import EditChartForm from './EditChartForm';
 import { getCurrentUser } from '@/services/UserService';
+import html2canvas from 'html2canvas';
 
 const { Meta } = Card;
 
@@ -175,8 +176,26 @@ const ChartComponent = ({ showModal, initChartInfo, currentCards }) => {
     setVisible(true);
   };
 
-  const moreOption = (chartId) => (
+  const cardRefs = useRef([]);
+  // 根据下标导出对应Card
+  const exportToPNG = (index, chartName) => {
+    const cardNode = cardRefs.current[index];
+    // 将Card组件转换为Canvas
+    html2canvas(cardNode).then((canvas) => {
+      // 将Canvas转换为PNG格式的图片数据
+      const imgData = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = imgData;
+      link.download = `card_${chartName}.png`;
+      link.click();
+    });
+  };
+
+  const moreOption = (chartId, index, chartName) => (
     <div>
+      <Button onClick={() => exportToPNG(index, chartName)} type="text" icon={<UploadOutlined />}>
+        导出
+      </Button>
       <Button onClick={() => delChart(chartId)} type="text" danger icon={<DeleteOutlined />}>
         删除
       </Button>
@@ -252,6 +271,8 @@ const ChartComponent = ({ showModal, initChartInfo, currentCards }) => {
             key={index}
             title={card.chart_name}
             style={{ width: 700, marginTop: 30 }}
+            // 为每个Card组件创建一个ref
+            ref={(ref) => (cardRefs.current[index] = ref)}
             actions={[
               // 选项
               <div key="setting">
@@ -263,7 +284,7 @@ const ChartComponent = ({ showModal, initChartInfo, currentCards }) => {
                 <span style={{ marginLeft: 5 }}>编辑</span>
               </div>,
 
-              <Popover content={moreOption(card.chart_id)} trigger="click" key="more">
+              <Popover content={moreOption(card.chart_id, index, card.chart_name)} trigger="click" key="more">
                 <EllipsisOutlined />
                 <span style={{ marginLeft: 5 }}>更多</span>
               </Popover>,

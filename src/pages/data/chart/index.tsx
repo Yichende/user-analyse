@@ -1,5 +1,5 @@
 import { addNewChart, getAllChart } from '@/services/ChartService';
-import { Button, Pagination } from 'antd';
+import { Pagination } from 'antd';
 import { useEffect, useState } from 'react';
 import ChartComponent from './components/ChartComponent';
 import ChartForm from './components/ChartForm';
@@ -51,8 +51,8 @@ const ChartPage = () => {
       },
       data_table_name: values.data_table_name,
       create_user_id: values.create_user_id,
-    }
-    // console.log('chartINfo: ', chartInfo)  
+    };
+    // console.log('chartINfo: ', chartInfo)
     await addNewChart(chartInfo);
     await initChartData();
   };
@@ -94,7 +94,11 @@ const ChartPage = () => {
         closeModal={closeModal}
       />
       <div>
-        <ChartComponent showModal={showModal} initChartInfo={initChartData} currentCards={currentCards} />
+        <ChartComponent
+          showModal={showModal}
+          initChartInfo={initChartData}
+          currentCards={currentCards}
+        />
         {/* 分页器组件 */}
         <Pagination
           style={{ marginTop: '20px', textAlign: 'center' }}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, Area, ResponsiveContainer } from 'recharts';
 import { Card, Progress } from 'antd';
-// import 'antd/dist/antd.css';
 import { getServerStatus } from '@/services/ServerService';
 
 const { Meta } = Card;
@@ -12,11 +11,18 @@ const ServerStatus = () => {
   const fetchServerStatus = async () => {
     try {
       const response = await getServerStatus()
-      // const data = await response.json();
       setServerStatus(response);
     } catch (error) {
       console.error('Error fetching server status:', error);
     }
+  };
+
+  const formatUptime = (uptime) => {
+    const days = Math.floor(uptime / (3600 * 24));
+    const hours = Math.floor((uptime % (3600 * 24)) / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+  
+    return `${days} 天 ${hours} 时 ${minutes} 分`;
   };
 
   useEffect(() => {
@@ -31,21 +37,42 @@ const ServerStatus = () => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <Card title="服务器状态" style={{ width: 800 }}>
+      <Card title="服务器状态" style={{ width: 800 , marginTop: 30}}>
         {serverStatus && (
           <>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart
-                data={serverStatus.cpu.map((cpu, index) => ({ ...cpu, name: `cpu${index + 1}` }))}
+              <AreaChart
+                data={serverStatus.cpu.map((cpu, index) => ({ ...cpu, name: `CPU ${index + 1}` }))}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                title='Cpu使用率变化'
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="speed" stroke="#8884d8" />
-              </LineChart>
+                <defs>
+                  <linearGradient id="userGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="niceGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="sysGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#ffc658" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="idleGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ff4d4f" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#ff4d4f" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <Area type="monotone" dataKey="user" stackId="1" stroke="#8884d8" fill="url(#userGradient)" name="用户态" />
+                <Area type="monotone" dataKey="nice" stackId="1" stroke="#82ca9d" fill="url(#niceGradient)" name="优先级较低" />
+                <Area type="monotone" dataKey="sys" stackId="1" stroke="#ffc658" fill="url(#sysGradient)" name="系统态" />
+                <Area type="monotone" dataKey="idle" stackId="1" stroke="#ff4d4f" fill="url(#idleGradient)" name="空闲态" />
+              </AreaChart>
             </ResponsiveContainer>
             <Meta
               title="内存占用率"
@@ -69,7 +96,7 @@ const ServerStatus = () => {
             <br />
             <Meta
               title={`可用内存: ${Math.round(serverStatus.freeMemory / (1024 * 1024 * 1024))} GB`}
-              description={`服务器已运行时间: ${Math.round(serverStatus.uptime / 60)} 分钟`}
+              description={`服务器已运行时间: ${formatUptime(serverStatus.uptime)}`}
             />
             <br />
             <Meta

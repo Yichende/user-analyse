@@ -130,9 +130,9 @@ const EditChartForm = ({ visible, onCancel, cardInfo, form, initChartInfo }) => 
         <Button key="next" type="primary" onClick={handleNext}>
           完成
         </Button>,
-        <Button key="test" type="primary" onClick={handleTest}>
-          测试
-        </Button>,
+        // <Button key="test" type="primary" onClick={handleTest}>
+        //   测试
+        // </Button>,
       ]}
     >
       <>

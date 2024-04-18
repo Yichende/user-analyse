@@ -40,6 +40,7 @@ const AddAnalysisPage = () => {
     });
     form.resetFields();
     setChartId(null);
+    setCurrentCards([])
   };
   const test = async () => {
     const id = params?.get('chartId');
@@ -83,20 +84,11 @@ const AddAnalysisPage = () => {
           nextArrow={<RightOutlined onClick={handleNext} />}
           prevArrow={<LeftOutlined onClick={handlePrev} />}
         >
-          {chartId && (
-            <>
-              {currentCards.map((card, index) => (
-                <div key={index}>
-                  <ChartComponent card={card} />
-                </div>
-              ))}
-            </>
-          )}
-          {/* {currentCards.map((card, index) => (
+          {currentCards.map((card, index) => (
             <div key={index}>
               <ChartComponent card={card} />
             </div>
-          ))} */}
+          ))}
           {!chartId && (
             <Card
               title="图表-暂无数据"
@@ -137,7 +129,7 @@ const AddAnalysisPage = () => {
           </Form>
         </Card>
       </Col>
-      <Button onClick={test}>Test</Button>
+      {/* <Button onClick={test}>Test</Button> */}
     </Row>
   );
 };
