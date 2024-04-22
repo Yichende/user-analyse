@@ -1,8 +1,8 @@
 import { userRegister } from '@/services/UserService';
-import { history, useModel } from '@umijs/max';
+import { useModel } from '@umijs/max';
 import { Form, Input, message, Popover, Progress, Select } from 'antd';
 import type { FC } from 'react';
-import React,  { useImperativeHandle, useEffect, useState } from 'react';
+import React, { useEffect, useImperativeHandle, useState } from 'react';
 import useStyles from './style.style';
 // import { flushSync } from 'react-dom';
 
@@ -35,10 +35,7 @@ const CreateUser: FC = React.forwardRef((props, ref) => {
     }
   };
 
-  useImperativeHandle(
-    ref,
-    () => ({ handleSubmit })
-  );
+  useImperativeHandle(ref, () => ({ handleSubmit }));
 
   const passwordStatusMap = {
     ok: (
@@ -79,18 +76,22 @@ const CreateUser: FC = React.forwardRef((props, ref) => {
 
   const onFinish = async (values: API.UserRegisterParams) => {
     // 向后端发送注册请求
-    try {
-      const response = await userRegister(values);
-      // console.log(response);
-      if (response && response.message === 'ok') {
-        message.success('注册成功');
-        form.resetFields();
+    form.validateFields().then(async() => {
+      try {
+        const response = await userRegister(values);
+        // console.log(response);
+        if (response && response.message === 'ok') {
+          message.success('注册成功');
+          form.resetFields();
+        }
+      } catch (error: any) {
+        if (error.response.data.message === 'User already exists') {
+          message.error('此用户已存在');
+        }
       }
-    } catch (error: any) {
-      if (error.response.data.message === 'User already exists') {
-        message.error('此用户已存在');
-      }
-    }
+    }).catch((err) => {
+      message.error('请完善表单')
+    });
   };
   const checkConfirm = (_: any, value: string) => {
     const promise = Promise;

@@ -23,7 +23,7 @@ export async function getInitialState(): Promise<{
       // console.log('res: ', res);
       return res;
     } catch (error) {
-      console.log('error: ', error)
+      console.log('error: ', error);
       history.push(loginPath);
     }
     return undefined;
@@ -38,7 +38,7 @@ export async function getInitialState(): Promise<{
     };
   }
   return {
-    fetchUserInfo
+    fetchUserInfo,
   };
 }
 
@@ -49,7 +49,9 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     iconfontUrl: '//at.alicdn.com/t/c/font_4471740_optqbr475qf.js',
     actionsRender: () => [<Question key="doc" />],
     avatarProps: {
-      src: initialState?.currentUser?.avatar ? initialState?.currentUser?.avatar : 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+      src: initialState?.currentUser?.avatar
+        ? initialState?.currentUser?.avatar
+        : 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
       title: <AvatarName />,
       render: (_, avatarChildren) => {
         return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
@@ -64,7 +66,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       const hasToken = localStorage.getItem('token');
       // 如果没有登录，重定向到 login
       if (!hasToken && location.pathname !== loginPath) {
-        console.log('重定向到： ', loginPath)
+        console.log('重定向到： ', loginPath);
         history.push(loginPath);
       }
     },
@@ -90,10 +92,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     ],
     links: isDev
       ? [
-          <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
+          <a key="git" href="https://github.com/Yichende" target="_blank" rel="noopener noreferrer">
             <LinkOutlined />
-            <span>OpenAPI 文档</span>
-          </Link>,
+            <span>Github 主页</span>
+          </a>,
         ]
       : [],
     menuHeaderRender: undefined,

@@ -1,4 +1,6 @@
-﻿export default [
+﻿import access from "@/access";
+
+export default [
   {
     path: '/user',
     layout: false,
@@ -39,6 +41,7 @@
     icon: 'icon-yonghuguanli',
     path: '/user_management',
     component: './userManagement',
+    access: 'admin'
   },
   {
     name: '数据管理',
@@ -48,12 +51,13 @@
       {
         name: '用户行为数据管理',
         path: '/data/behavior',
-        component: './data/user_behavior'
+        component: './data/user_behavior',
+        access: ['admin', 'data_admin']
       },
       {
         name: '图表管理',
         path: '/data/chart',
-        component: './data/chart'
+        component: './data/chart',
       }
     ],
   },
@@ -61,6 +65,7 @@
     name: '数据分析',
     icon: 'icon-shujufenxi',
     path: '/analysis',
+    access: ['admin', 'data_analyst'],
     routes: [
       {
         name: '全部分析',
